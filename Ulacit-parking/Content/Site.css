@@ -1,10 +1,9 @@
-﻿/* Wrapper principal flex para sidebar + contenido */
+﻿
 #wrapper {
     min-height: 100vh;
     display: flex;
 }
 
-/* Sidebar fijo y ocultable con transform */
 #sidebar {
     position: fixed;
     top: 0;
@@ -18,13 +17,10 @@
     z-index: 1050;
     transform: translateX(0);
 }
-
-    /* Ocultar sidebar desplazándolo a la izquierda */
     #sidebar.collapsed {
         transform: translateX(-250px);
     }
 
-    /* Sidebar header */
     #sidebar .sidebar-header {
         background-color: #23272b;
     }
@@ -38,7 +34,7 @@
         border-radius: 6px;
     }
 
-    /* Links sidebar */
+
     #sidebar ul li a {
         text-align: left;
         font-size: 1rem;
@@ -54,47 +50,25 @@
             text-decoration: none;
         }
 
-/* Opcional: si quieres iconos centrados en collapsed, puedes activar estas reglas */
-/*
-#sidebar.collapsed ul li a {
-    text-align: center;
-    padding: 10px 0;
-    font-size: 1.2rem;
-}
-
-#sidebar.collapsed ul li a span {
-    display: none;
-}
-
-#sidebar.collapsed .sidebar-image {
-    display: none;
-}
-*/
-
-/* Contenido principal con margen para dejar espacio al sidebar */
 #page-content-wrapper {
     flex-grow: 1;
-    padding: 0 20px; /* un poco de padding para respirar */
+    padding: 0 20px;
     margin-left: 250px;
     transition: margin-left 0.3s ease;
 }
 
-/* Cuando el sidebar está oculto, eliminar margen para que contenido se expanda */
+
 #wrapper.sidebar-collapsed #page-content-wrapper {
     margin-left: 0;
 }
 
-/* Navbar claro */
 .navbar-light {
     background-color: #f8f9fa !important;
 }
-
-/* Botones en sidebar */
 #sidebar ul li a.btn {
     border-radius: 0;
 }
 
-/* Tarjetas con acción */
 .action-card {
     border-radius: 15px;
     cursor: pointer;
@@ -122,7 +96,6 @@
     color: #555;
 }
 
-/* Responsive para móviles */
 @media (max-width: 768px) {
     /* Sidebar oculto por defecto, ocupa toda la pantalla cuando se muestra */
     #sidebar {
