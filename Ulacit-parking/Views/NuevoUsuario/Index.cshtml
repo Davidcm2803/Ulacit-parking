@@ -77,7 +77,7 @@
         .catch(() => alert("Error al procesar la solicitud."));
     }
 
-    // Obtener el token antifalsificación si lo usas (opcional)
+    // Obtener el token antifalsificación trabajarlo no funcional
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
         return tokenInput ? tokenInput.value : '';

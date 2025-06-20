@@ -12,7 +12,6 @@ namespace Ulacit_parking.Controllers
     {
         private readonly ParkingDatabaseContext _db = new ParkingDatabaseContext();
 
-        // LISTAR USUARIOS
         [HttpGet]
         public ActionResult Index()
         {
@@ -29,7 +28,7 @@ namespace Ulacit_parking.Controllers
             return View(usuarios);
         }
 
-        // CREAR USUARIO - GET
+
         [HttpGet]
         public ActionResult Add()
         {
@@ -48,7 +47,6 @@ namespace Ulacit_parking.Controllers
             return View(model);
         }
 
-        // CREAR USUARIO - POST
         [HttpPost]
         public JsonResult AgregarUsuario(string nombre, string cedula, string email, DateTime fechaNacimiento, string password, int rol)
         {
