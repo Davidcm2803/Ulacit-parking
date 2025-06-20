@@ -1,0 +1,85 @@
+﻿@model List<Ulacit_parking.Models.ViewModels.UserViewModel>
+@{
+    ViewBag.Title = "Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Usuarios</h2>
+        <a class="btn btn-success" href="@Url.Action("Crear", "NuevoUsuario")">
+            <i class="fas fa-plus"></i> Añadir Usuario
+        </a>
+    </div>
+
+    <input type="text" class="form-control mb-3" placeholder="Buscar por nombre, correo o cédula..." onkeyup="filtrarUsuarios(this.value)" />
+
+    <table class="table table-bordered table-hover" id="usuariosTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Correo</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Identification</td>
+                    <td>@user.Email</td>
+                    <td>@user.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a href="@Url.Action("Editar", "NuevoUsuario", new { id = user.Id })" class="btn btn-sm btn-primary me-1" title="Editar">
+                            <i class="fas fa-pen"></i>
+                        </a>
+                        <button class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminarUsuario(@user.Id)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function filtrarUsuarios(valor) {
+        const rows = document.querySelectorAll("#usuariosTable tbody tr");
+        valor = valor.toLowerCase();
+        rows.forEach(row => {
+            const texto = row.textContent.toLowerCase();
+            row.style.display = texto.includes(valor) ? "" : "none";
+        });
+    }
+
+    function eliminarUsuario(id) {
+        if (!confirm("¿Está seguro que desea eliminar este usuario?")) return;
+
+        fetch('@Url.Action("EliminarUsuario", "NuevoUsuario")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': getAntiForgeryToken()
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(() => alert("Error al procesar la solicitud."));
+    }
+
+    // Obtener el token antifalsificación si lo usas (opcional)
+    function getAntiForgeryToken() {
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        return tokenInput ? tokenInput.value : '';
+    }
+</script>

@@ -1,0 +1,46 @@
+﻿@model List<Ulacit_parking.Models.ViewModels.VehicleViewModel>
+
+@{
+    ViewBag.Title = "Mis Vehículos";
+    Layout = null;
+}
+
+<h2>Mis Vehículos</h2>
+
+@if (Model.Count == 0)
+{
+    <p>No tienes vehículos registrados.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Marca</th>
+                <th>Color</th>
+                <th>Placa</th>
+                <th>Tipo</th>
+                <th>¿Espacio especial?</th>
+                <th>¿Está parqueado?</th>
+                <th>Historial</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehiculo in Model)
+            {
+                <tr>
+                    <td>@vehiculo.Brand</td>
+                    <td>@vehiculo.Color</td>
+                    <td>@vehiculo.LicensePlate</td>
+                    <td>@vehiculo.VehicleType</td>
+                    <td>@(vehiculo.UsesSpecialSpace ? "Sí" : "No")</td>
+                    <td>@(vehiculo.IsParked ? "Sí" : "No")</td>
+                    <td>
+                        <a href="@Url.Action("Historial", "Usuarios", new { id = vehiculo.Id })" class="btn btn-sm btn-info">Ver</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

@@ -1,0 +1,78 @@
+﻿@model Ulacit_parking.Models.ViewModels.UserViewModel
+
+@{
+    ViewBag.Title = "Editar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2>Editar Usuario</h2>
+
+    <form id="formEditarUsuario" onsubmit="return false;">
+        <input type="hidden" id="id" value="@Model.Id" />
+
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre Completo</label>
+            <input type="text" class="form-control" id="nombre" value="@Model.Name" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="cedula" class="form-label">Identificación</label>
+            <input type="text" class="form-control" id="cedula" value="@Model.Identification" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" value="@Model.Email" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" id="fechaNacimiento" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="rol" class="form-label">Rol</label>
+            <select id="rol" class="form-select" required>
+                <option value="">Seleccione un rol</option>
+                @foreach (var rol in Model.Roles)
+                {
+                    <option value="@rol.Id" @(rol.Id == Model.RoleId ? "selected" : "")>@rol.RoleName</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" onclick="editarUsuario()">Guardar Cambios</button>
+        <a href="@Url.Action("Index", "NuevoUsuario")" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    function editarUsuario() {
+        const id = document.getElementById("id").value;
+        const nombre = document.getElementById("nombre").value.trim();
+        const cedula = document.getElementById("cedula").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const fechaNacimiento = document.getElementById("fechaNacimiento").value;
+        const rol = document.getElementById("rol").value;
+
+        if (!nombre || !cedula || !email || !fechaNacimiento || !rol) {
+            alert("Por favor, complete todos los campos.");
+            return;
+        }
+
+        fetch('/NuevoUsuario/EditarUsuario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, nombre, cedula, email, fechaNacimiento, rol })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                window.location.href = '@Url.Action("Index", "NuevoUsuario")';
+            }
+        })
+        .catch(() => alert("Error al procesar la solicitud."));
+    }
+</script>

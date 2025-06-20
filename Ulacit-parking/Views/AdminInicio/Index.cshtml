@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["SuccessMessage"])');
+    </script>
+}
+
+<div class="container py-5">
+
+    <h1 class="text-primary mb-4 text-center">Funciones del Sistema de Parqueo</h1>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-sm-6 col-md-4">
+            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "NuevoUsuario")'">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-4x mb-3 text-success"></i>
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text">Añadir, eliminar o editar usuarios</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "NuevoVehiculo")'">
+                <div class="card-body text-center">
+                    <i class="fas fa-car fa-4x mb-3 text-warning"></i>
+                    <h5 class="card-title">Vehículos</h5>
+                    <p class="card-text">Añadir, eliminar o editarvehículos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "ParkingLots")'">
+                <div class="card-body text-center">
+                    <i class="fas fa-parking fa-4x mb-3 text-info"></i>
+                    <h5 class="card-title">Parqueos</h5>
+                    <p class="card-text">Controlar espacio de parqueos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("ManageParking", "Parking")'">
+                <div class="card-body text-center">
+                    <i class="fas fa-door-open fa-4x mb-3 text-danger"></i>
+                    <h5 class="card-title">Entrada/Salida</h5>
+                    <p class="card-text">Controlar acceso y salida</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-md-4">
+            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "Bitacora")'">
+                <div class="card-body text-center">
+                    <i class="fas fa-book fa-4x mb-3 text-secondary"></i>
+                    <h5 class="card-title">Bitácora</h5>
+                    <p class="card-text">Buscar vehículos y registros</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

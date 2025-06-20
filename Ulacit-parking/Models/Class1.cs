@@ -1,0 +1,99 @@
+﻿using MySql.Data.EntityFramework;
+using System.Collections.Generic;
+using System.Data.Entity;
+
+
+namespace Ulacit_parking.Models
+{
+    [DbConfigurationType(typeof(MySqlEFConfiguration))]
+    public class ParkingDatabaseContext : DbContext
+    {
+        public ParkingDatabaseContext() : base("name=ParkingDatabaseContext")
+        {
+        }
+
+        // DbSets que representan las tablas en la base de datos
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<ParkingLot> ParkingLots { get; set; }
+        public DbSet<ParkingAssignment> ParkingAssignments { get; set; }
+        public DbSet<MovementLog> MovementLogs { get; set; }
+    }
+
+    // Aquí agrego las clases básicas de las entidades para que tengas referencia
+    public class User
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public System.DateTime DateOfBirth { get; set; }
+        public string Identification { get; set; }
+        public int RoleId { get; set; }
+        public string Password { get; set; }
+        public string FirstLogin { get; set; }
+        public string PasswordChanged { get; set; }
+
+        public virtual Role Role { get; set; }
+        public virtual ICollection<Vehicle> Vehicles { get; set; }
+    }
+
+    public class Role
+    {
+        public int Id { get; set; }
+        public string RoleName { get; set; }
+
+        public virtual ICollection<User> Users { get; set; }
+    }
+
+    public class Vehicle
+    {
+        public int Id { get; set; }
+        public string Brand { get; set; }
+        public string Color { get; set; }
+        public string LicensePlate { get; set; }
+        public string VehicleType { get; set; }
+        public int OwnerId { get; set; }
+        public bool? UsesSpecialSpace { get; set; }
+        public string IsActive { get; set; }
+        public bool IsParked { get; set; }
+        public int? ParkingLotId { get; set; }
+
+        public virtual User Owner { get; set; }
+        public virtual ParkingLot ParkingLot { get; set; }
+    }
+
+    public class ParkingLot
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int RegularCapacity { get; set; }
+        public int MotorcycleCapacity { get; set; }
+        public int SpecialCapacity { get; set; }
+
+        public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
+        public virtual ICollection<Vehicle> Vehicles { get; set; }
+    }
+
+    public class ParkingAssignment
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int ParkingLotId { get; set; }
+        public System.DateTime AssignmentDate { get; set; }
+
+        public virtual User User { get; set; }
+        public virtual ParkingLot ParkingLot { get; set; }
+    }
+
+    public class MovementLog
+    {
+        public int Id { get; set; }
+        public int? VehicleId { get; set; }
+        public string Action { get; set; }
+        public System.DateTime? Timestamp { get; set; }
+        public string Reason { get; set; }
+
+        public virtual Vehicle Vehicle { get; set; }
+    }
+}

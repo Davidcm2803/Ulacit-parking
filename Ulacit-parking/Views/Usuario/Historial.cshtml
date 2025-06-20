@@ -1,0 +1,34 @@
+﻿@model List<Ulacit_parking.Models.MovementLog>
+@{
+    ViewBag.Title = "Historial de Parqueo";
+    Layout = null;
+}
+
+<h2>Historial de Parqueo</h2>
+
+@if (!Model.Any())
+{
+    <p>No hay registros de parqueo para este vehículo.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Acción</th>
+                <th>Fecha y hora</th>
+                <th>Motivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td>@log.Action</td>
+                    <td>@((log.Timestamp != null) ? ((DateTime)log.Timestamp).ToString("g") : "-")</td>
+                    <td>@log.Reason</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

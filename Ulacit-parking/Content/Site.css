@@ -1,0 +1,159 @@
+﻿/* Wrapper principal flex para sidebar + contenido */
+#wrapper {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* Sidebar fijo y ocultable con transform */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background-color: #343a40;
+    color: white;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1050;
+    transform: translateX(0);
+}
+
+    /* Ocultar sidebar desplazándolo a la izquierda */
+    #sidebar.collapsed {
+        transform: translateX(-250px);
+    }
+
+    /* Sidebar header */
+    #sidebar .sidebar-header {
+        background-color: #23272b;
+    }
+
+    #sidebar .sidebar-image {
+        background-image: url('/Content/img/FondoIzq.PNG');
+        background-size: cover;
+        background-repeat: no-repeat;
+        height: 200px;
+        margin: 0 15px 10px 15px;
+        border-radius: 6px;
+    }
+
+    /* Links sidebar */
+    #sidebar ul li a {
+        text-align: left;
+        font-size: 1rem;
+        padding: 10px 20px;
+        color: #ffffff;
+        display: block;
+        transition: background-color 0.3s;
+    }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li a:focus {
+            background-color: #495057;
+            text-decoration: none;
+        }
+
+/* Opcional: si quieres iconos centrados en collapsed, puedes activar estas reglas */
+/*
+#sidebar.collapsed ul li a {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.2rem;
+}
+
+#sidebar.collapsed ul li a span {
+    display: none;
+}
+
+#sidebar.collapsed .sidebar-image {
+    display: none;
+}
+*/
+
+/* Contenido principal con margen para dejar espacio al sidebar */
+#page-content-wrapper {
+    flex-grow: 1;
+    padding: 0 20px; /* un poco de padding para respirar */
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Cuando el sidebar está oculto, eliminar margen para que contenido se expanda */
+#wrapper.sidebar-collapsed #page-content-wrapper {
+    margin-left: 0;
+}
+
+/* Navbar claro */
+.navbar-light {
+    background-color: #f8f9fa !important;
+}
+
+/* Botones en sidebar */
+#sidebar ul li a.btn {
+    border-radius: 0;
+}
+
+/* Tarjetas con acción */
+.action-card {
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    background-color: white;
+    user-select: none;
+}
+
+    .action-card:hover,
+    .action-card:focus {
+        transform: translateY(-8px);
+        box-shadow: 0 14px 30px rgb(0 0 0 / 0.18);
+        background-color: #f0f0ff;
+        outline: none;
+    }
+
+.card-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    /* Sidebar oculto por defecto, ocupa toda la pantalla cuando se muestra */
+    #sidebar {
+        width: 250px;
+        transform: translateX(-250px);
+        position: fixed;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.4);
+    }
+
+        #sidebar.collapsed {
+            transform: translateX(0);
+        }
+
+    /* Contenido sin margen en móvil */
+    #page-content-wrapper {
+        margin-left: 0 !important;
+        padding: 0 10px;
+    }
+
+    /* Añade un fondo semi-transparente cuando el sidebar está abierto */
+    #sidebar.collapsed ~ #page-content-wrapper::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 1040;
+    }
+}

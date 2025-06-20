@@ -1,0 +1,76 @@
+﻿@model Ulacit_parking.Models.ViewModels.VehicleViewModel
+@{
+    ViewData["Title"] = "Registro de Vehículo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["ErrorMessage"])');  // Aquí mostramos el mensaje de error como un alert
+    </script>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["SuccessMessage"])');
+    </script>
+}
+
+
+
+<div class="container-fluid px-md-5" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; max-width: 700px; margin: 0 auto; height: 600px; position: relative; left: 0px;">
+    @using (Html.BeginForm("Create", "NuevoVehiculo", FormMethod.Post, new { id = "vehicleForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <!-- Fila de Marca y Color -->
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <label for="marca">Marca</label>
+                @Html.TextBoxFor(model => model.Brand, new { @class = "form-control", placeholder = "Ingrese la marca del vehículo", required = "required" })
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="color">Color</label>
+                @Html.TextBoxFor(model => model.Color, new { @class = "form-control", placeholder = "Ingrese el color del vehículo", required = "required" })
+            </div>
+        </div>
+
+        <!-- Fila de Número de Placa y Tipo -->
+        <div class="row mt-3">
+            <div class="col-12 col-md-6">
+                <label for="placa">Número de Placa</label>
+                @Html.TextBoxFor(model => model.LicensePlate, new { @class = "form-control", placeholder = "Ingrese el número de placa", required = "required" })
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="tipo">Tipo de Vehículo</label>
+                @Html.DropDownListFor(model => model.VehicleType, new SelectList(new[] { "Carro", "Moto" }), "Seleccione un tipo", new { @class = "form-control", required = "required" })
+            </div>
+        </div>
+
+        <!-- Fila de Dueño (Usuario) y Usa Espacio Ley 7600 -->
+        <div class="row mt-3">
+            <div class="col-12 col-md-6">
+                <label for="dueño">Dueño (Usuario)</label>
+                @Html.DropDownListFor(
+                    model => model.OwnerId,
+                    new SelectList(Model.Usuarios, "Id", "Name"),
+                    "Seleccione un dueño",
+                    new { @class = "form-control", required = "required" }
+                )
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="espacioLey7600">Usa Espacio Ley 7600</label>
+                @Html.CheckBoxFor(model => model.UsesSpecialSpace, new { @class = "form-check-input" })
+                <small id="helpBlock" class="form-text text-muted">Marque esta opción si el vehículo usa un espacio especial según la Ley 7600.</small>
+            </div>
+        </div>
+
+        <!-- Botón de Registrar Vehículo -->
+        <div class="row mt-4">
+            <div class="col-10 text-center">
+                <button type="submit" class="btn btn-primary btn-agregar">Registrar Vehículo</button>
+            </div>
+        </div>
+    }
+</div>

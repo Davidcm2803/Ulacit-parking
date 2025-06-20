@@ -1,0 +1,112 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Mi App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <link href="~/Content/site.css" rel="stylesheet" />
+
+
+</head>
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <nav id="sidebar" class="bg-dark text-white">
+            <div class="sidebar-header p-3 text-center border-bottom">
+                <a href="@Url.Action("Index", "AdminInicio")" class="text-white text-decoration-none fs-4 fw-bold">Mi App</a>
+            </div>
+            <ul class="list-unstyled ps-0 mt-3">
+                <li class="mb-1">
+                    <a href="@Url.Action("Index", "AdminInicio")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-home me-2"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="@Url.Action("Index", "NuevoUsuario")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-users me-2"></i> <span>Usuarios</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="@Url.Action("Index", "NuevoVehiculo")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-car me-2"></i> <span>Vehículos</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="@Url.Action("Index", "ParkingLots")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-parking me-2"></i> <span>Parqueos</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="@Url.Action("ManageParking", "Parking")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-sign-in-alt me-2"></i> <span>Entrada/Salida</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="@Url.Action("Index", "Bitacora")" class="btn btn-outline-light w-100 mb-2">
+                        <i class="fas fa-book me-2"></i> <span>Bitácora</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
+                    <a class="navbar-brand ms-3" href="#">Dashboard</a>
+
+                    <div class="collapse navbar-collapse justify-content-end">
+                        <ul class="navbar-nav me-3">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-user-circle"></i> Cuenta</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Logout", "Admin")"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="p-4">
+                @RenderBody()
+            </main>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap Bundle JS (con Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para toggle sidebar -->
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            const wrapper = document.getElementById('wrapper');
+            wrapper.classList.toggle('sidebar-collapsed');
+
+            // En móvil, si sidebar se muestra, bloquear scroll del body
+            if (wrapper.classList.contains('sidebar-collapsed')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+
+    </script>
+</body>
+</html>
