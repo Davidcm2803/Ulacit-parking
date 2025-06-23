@@ -55,7 +55,7 @@ namespace Ulacit_parking.Controllers
                         return RedirectToAction("Index", "AdminInicio");
                     case 2:
                         Session["AdminLogged"] = user;
-                        return RedirectToAction("Index", "GuardaInicio");
+                        return RedirectToAction("Index", "AdminInicio");
                     case 3:
                         Session["UserLogged"] = user;
                         return RedirectToAction("Index", "Usuario");
@@ -121,7 +121,7 @@ namespace Ulacit_parking.Controllers
                     return RedirectToAction("Index", "AdminInicio");
                 case 2:
                     Session["AdminLogged"] = user;
-                    return RedirectToAction("Index", "GuardaInicio");
+                    return RedirectToAction("Index", "AdminInicio");
                 case 3:
                     Session["UserLogged"] = user;
                     return RedirectToAction("Index", "Usuario");
