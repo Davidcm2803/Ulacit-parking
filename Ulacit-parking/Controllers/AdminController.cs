@@ -1,55 +1,64 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Linq;
 using System.Web.Mvc;
 using Ulacit_parking.Models;
-using MySql.Data.MySqlClient;
+using Ulacit_parking.Models.ViewModels;
 
 namespace Ulacit_parking.Controllers
 {
     public class AdminController : Controller
     {
-        private ParkingDatabaseContext db = new ParkingDatabaseContext();
-
+        private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
         [HttpGet]
         public ActionResult Login()
         {
             return View();
         }
+
         [HttpPost]
         public ActionResult Login(string email, string password)
         {
             try
             {
-                var admin = db.Users.FirstOrDefault(u => u.Email == email);
-                if (admin == null)
+                var user = db.Users.FirstOrDefault(u => u.Email == email);
+
+                if (user == null)
                 {
                     ViewBag.ErrorMessage = "El correo electrónico no está registrado.";
                     return View();
                 }
 
-                if (admin.Password != password)
+                if (user.Password != password)
                 {
                     ViewBag.ErrorMessage = "La contraseña es incorrecta.";
                     return View();
                 }
-                switch (admin.RoleId)
+
+                // Guardar en sesión el ID del
+                Session["UserId"] = user.Id;
+
+                // Verifica inicio de sesión
+                if (user.FirstLogin == "0")
                 {
-                    case 1: // Admin
-                        Session["AdminLogged"] = admin;
-                        TempData["SuccessMessage"] = "Inicio de sesión exitoso.";
+                    TempData["FirstLogin"] = true;
+                    return RedirectToAction("CambiarPassword", "Admin");
+                }
+
+                // Redirigir según el rol
+                TempData["SuccessMessage"] = "Inicio de sesión exitoso.";
+                switch (user.RoleId)
+                {
+                    case 1:
+                        Session["AdminLogged"] = user;
                         return RedirectToAction("Index", "AdminInicio");
-
-                    case 2: // Guarda
-                        Session["AdminLogged"] = admin;
-                        TempData["SuccessMessage"] = "Inicio de sesión exitoso.";
+                    case 2:
+                        Session["AdminLogged"] = user;
                         return RedirectToAction("Index", "GuardaInicio");
-
-                    case 3: // Estudiante
-                        Session["UserLogged"] = admin;
-                        TempData["SuccessMessage"] = "Inicio de sesión exitoso.";
+                    case 3:
+                        Session["UserLogged"] = user;
                         return RedirectToAction("Index", "Usuario");
-
                     default:
                         ViewBag.ErrorMessage = "Rol de usuario no reconocido.";
                         return View();
@@ -65,14 +74,68 @@ namespace Ulacit_parking.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult CambiarPassword()
+        {
+            if (Session["UserId"] == null)
+                return RedirectToAction("Login");
 
-        // Método para probar la conexión directa a MySQL
+            int userId = (int)Session["UserId"];
+            var user = db.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (user == null)
+                return HttpNotFound();
+
+            var model = new UserViewModel
+            {
+                Id = user.Id
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult CambiarPassword(UserViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                ModelState.AddModelError("Password", "Debe ingresar una nueva contraseña.");
+                return View(model);
+            }
+
+            var user = db.Users.FirstOrDefault(u => u.Id == model.Id);
+            if (user == null)
+                return HttpNotFound();
+
+            user.Password = model.Password;
+            user.FirstLogin = "1";
+
+            db.SaveChanges();
+
+            TempData["SuccessMessage"] = "Contraseña actualizada correctamente.";
+
+            switch (user.RoleId)
+            {
+                case 1:
+                    Session["AdminLogged"] = user;
+                    return RedirectToAction("Index", "AdminInicio");
+                case 2:
+                    Session["AdminLogged"] = user;
+                    return RedirectToAction("Index", "GuardaInicio");
+                case 3:
+                    Session["UserLogged"] = user;
+                    return RedirectToAction("Index", "Usuario");
+                default:
+                    return RedirectToAction("Login");
+            }
+        }
+
         public ActionResult TestMySqlConnection()
         {
             string connStr = "server=localhost;port=3306;database=parkingdatabase;uid=root;pwd=;";
             try
             {
-                using (var conn = new MySql.Data.MySqlClient.MySqlConnection(connStr))
+                using (var conn = new MySqlConnection(connStr))
                 {
                     conn.Open();
                 }
@@ -83,6 +146,5 @@ namespace Ulacit_parking.Controllers
                 return Content("Error de conexión: " + ex.Message);
             }
         }
-
     }
 }

@@ -408,11 +408,13 @@
     <Content Include="Views\Admin\Login.cshtml" />
     <Content Include="Views\AdminInicio\Index.cshtml" />
     <Content Include="Views\NuevoUsuario\Index.cshtml" />
-    <Content Include="Views\NuevoVehiculo\Index.cshtml" />
+    <Content Include="Views\NuevoVehiculo\Create.cshtml" />
     <Content Include="Views\Usuario\Index.cshtml" />
     <Content Include="Views\Usuario\Historial.cshtml" />
     <Content Include="Views\NuevoUsuario\Add.cshtml" />
     <Content Include="Views\NuevoUsuario\Editar.cshtml" />
+    <Content Include="Views\NuevoVehiculo\Index.cshtml" />
+    <Content Include="Views\Admin\CambiarPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

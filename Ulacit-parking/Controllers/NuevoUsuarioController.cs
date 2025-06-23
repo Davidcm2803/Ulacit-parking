@@ -70,8 +70,8 @@ namespace Ulacit_parking.Controllers
                     Identification = cedula,
                     RoleId = rol,
                     Password = password,
-                    FirstLogin = "1",
-                    PasswordChanged = "0"
+                    FirstLogin = "0",
+ 
                 };
 
                 using (var scope = new TransactionScope())
@@ -125,7 +125,7 @@ namespace Ulacit_parking.Controllers
                 if (usuario == null)
                     return Json(new { success = false, message = "Usuario no encontrado." });
 
-                // Validar duplicados excepto el mismo usuario
+
                 if (_db.Users.Any(u => u.Email == email && u.Id != id))
                     return Json(new { success = false, message = "Correo ya registrado." });
 
@@ -149,22 +149,26 @@ namespace Ulacit_parking.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public JsonResult EliminarUsuario(int id)
         {
             try
             {
-                var usuario = _db.Users.Include("Vehicles").FirstOrDefault(u => u.Id == id);
-                if (usuario == null)
-                {
-                    return Json(new { success = false, message = "Usuario no encontrado." });
-                }
+                var usuario = _db.Users.FirstOrDefault(u => u.Id == id);
 
+                if (usuario == null)
+                    return Json(new { success = false, message = "Usuario no encontrado." });
+
+                // Cargar los vehículos del usuario
+                _db.Entry(usuario).Collection(u => u.Vehicles).Load();
+
+                // Eliminar todos los vehículos relacionados
                 foreach (var vehiculo in usuario.Vehicles.ToList())
                 {
                     _db.Vehicles.Remove(vehiculo);
                 }
 
-                // Eliminar usuario
+                // Eliminar el usuario
                 _db.Users.Remove(usuario);
                 _db.SaveChanges();
 
@@ -172,9 +176,12 @@ namespace Ulacit_parking.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Error: {ex.Message}" });
+                var error = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return Json(new { success = false, message = "Error: " + error });
             }
         }
+
+
 
     }
 }

@@ -50,11 +50,10 @@
         <!-- Fila de Contraseña -->
         <div class="row mt-3">
             <div class="col-12">
-                <label for="password">Contraseña</label>
-                <input type="password" class="form-control" placeholder="Ingrese su contraseña" name="PASSWORD" id="password" required autocomplete="current-password">
-                <small id="passwordHelpBlock" class="form-text text-muted">
-                    La contraseña debe tener al menos 8 caracteres.
-                </small>
+                <label>Contraseña</label>
+                <div class="form-control-plaintext text-muted">
+                    La contraseña será <strong>Ulacit123</strong> por defecto.
+                </div>
             </div>
         </div>
 
@@ -103,9 +102,8 @@
         const email = document.getElementById("email").value;
         const fechaNacimiento = document.getElementById("datepicker").value;
         const rol = document.getElementById("rol").value;
-        const password = document.getElementById("password").value;
 
-        if (!nombre || !cedula || !email || !fechaNacimiento || !rol || !password) {
+        if (!nombre || !cedula || !email || !fechaNacimiento || !rol) {
             alert("Por favor, complete todos los campos.");
             return;
         }
@@ -115,7 +113,7 @@
             cedula: cedula,
             email: email,
             fechaNacimiento: fechaNacimiento,
-            password: password,
+            password: "Ulacit123",
             rol: parseInt(rol)
         };
 

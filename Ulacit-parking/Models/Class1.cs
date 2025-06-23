@@ -32,8 +32,6 @@ namespace Ulacit_parking.Models
         public int RoleId { get; set; }
         public string Password { get; set; }
         public string FirstLogin { get; set; }
-        public string PasswordChanged { get; set; }
-
         public virtual Role Role { get; set; }
         public virtual ICollection<Vehicle> Vehicles { get; set; }
     }
@@ -55,12 +53,8 @@ namespace Ulacit_parking.Models
         public string VehicleType { get; set; }
         public int OwnerId { get; set; }
         public bool? UsesSpecialSpace { get; set; }
-        public string IsActive { get; set; }
-        public bool IsParked { get; set; }
-        public int? ParkingLotId { get; set; }
 
         public virtual User Owner { get; set; }
-        public virtual ParkingLot ParkingLot { get; set; }
     }
 
     public class ParkingLot
@@ -70,9 +64,8 @@ namespace Ulacit_parking.Models
         public int RegularCapacity { get; set; }
         public int MotorcycleCapacity { get; set; }
         public int SpecialCapacity { get; set; }
-
-        public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
-        public virtual ICollection<Vehicle> Vehicles { get; set; }
+        //public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
+        //public virtual ICollection<Vehicle> Vehicles { get; set; }
     }
 
     public class ParkingAssignment

@@ -86,7 +86,6 @@ else
                 <th>Placa</th>
                 <th>Tipo</th>
                 <th>¿Espacio especial?</th>
-                <th>¿Está parqueado?</th>
                 <th>Historial</th>
             </tr>
         </thead>
@@ -99,7 +98,6 @@ else
                     <td>@vehiculo.LicensePlate</td>
                     <td>@vehiculo.VehicleType</td>
                     <td>@(vehiculo.UsesSpecialSpace ? "Sí" : "No")</td>
-                    <td>@(vehiculo.IsParked ? "Sí" : "No")</td>
                     <td>
                         <a href="@Url.Action("Historial", "Usuarios", new { id = vehiculo.Id })" class="btn btn-sm btn-info">Ver</a>
                     </td>

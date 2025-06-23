@@ -18,7 +18,6 @@ namespace Ulacit_parking.Models.ViewModels
         public int RoleId { get; set; }
         public string Password { get; set; }
         public string FirstLogin { get; set; }
-        public string PasswordChanged { get; set; }
 
         public List<RoleViewModel> Roles { get; set; }
 

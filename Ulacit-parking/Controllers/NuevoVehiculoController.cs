@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using Ulacit_parking.Models;
 using Ulacit_parking.Models.ViewModels;
@@ -7,86 +8,110 @@ namespace Ulacit_parking.Controllers
 {
     public class NuevoVehiculoController : Controller
     {
-        private ParkingDatabaseContext db = new ParkingDatabaseContext();
+        private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
         public ActionResult Index()
         {
-            var usuarios = db.Users.Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                Name = u.Name
-            }).ToList();
+            var vehiculos = db.Vehicles
+                .Select(v => new VehicleViewModel
+                {
+                    Id = v.Id,
+                    Brand = v.Brand,
+                    Color = v.Color,
+                    LicensePlate = v.LicensePlate,
+                    VehicleType = v.VehicleType,
+                    OwnerId = v.OwnerId,
+                    OwnerName = v.Owner.Name,
+                    UsesSpecialSpace = v.UsesSpecialSpace ?? false
+                }).ToList();
 
-            var viewModel = new VehicleViewModel
-            {
-                Usuarios = usuarios
-            };
-
-            return View(viewModel);
+            return View(vehiculos);
         }
 
+        public ActionResult Create()
+        {
+            var model = new VehicleViewModel
+            {
+                Usuarios = db.Users.Select(u => new UserViewModel
+                {
+                    Id = u.Id,
+                    Name = u.Name
+                }).ToList()
+            };
+            return View(model);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(VehicleViewModel newVehicle)
         {
-            var admin = (User)Session["AdminLogged"];
+            var admin = Session["AdminLogged"] as User;
             if (admin != null && admin.Email.EndsWith("@guarda.com"))
             {
                 TempData["ErrorMessage"] = "No tienes permisos para agregar vehículos.";
                 return RedirectToAction("Index", "AdminInicio");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                return View(newVehicle);
+            }
 
-                int vehiclesCount = db.Database.SqlQuery<int>(
-                    "SELECT COUNT(*) FROM vehicles WHERE owner_id = @p0",
-                    newVehicle.OwnerId).FirstOrDefault();
-
-                if (vehiclesCount >= 2)
-                {
-                    TempData["ErrorMessage"] = "Este usuario ya tiene 2 vehículos registrados.";
-                    return RedirectToAction("Index");
-                }
-
-                int existe = db.Database.SqlQuery<int>(
-                    @"SELECT COUNT(*) FROM vehicles 
-                      WHERE LicensePlate = @p0 AND VehicleType = @p1",
-                    newVehicle.LicensePlate, newVehicle.VehicleType).FirstOrDefault();
-
-                if (existe > 0)
-                {
-                    TempData["ErrorMessage"] = "Ya existe un vehículo con esta placa y tipo de vehículo.";
-                    return RedirectToAction("Index");
-                }
-
-
-                db.Database.ExecuteSqlCommand(
-                    @"INSERT INTO vehicles 
-                    (Brand, Color, LicensePlate, VehicleType, owner_id	, UsesSpecialSpace	, is_active, IsParked) 
-                    VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7)",
-                    newVehicle.Brand,
-                    newVehicle.Color,
-                    newVehicle.LicensePlate,
-                    newVehicle.VehicleType,
-                    newVehicle.OwnerId,
-                    newVehicle.UsesSpecialSpace ? 1 : 0,
-                    "1", 
-                    0 
-                );
-
-                TempData["SuccessMessage"] = "Vehículo registrado exitosamente.";
+            var countVehiculos = db.Vehicles.Count(v => v.OwnerId == newVehicle.OwnerId);
+            if (countVehiculos >= 2)
+            {
+                TempData["ErrorMessage"] = "Este usuario ya tiene 2 vehículos registrados.";
                 return RedirectToAction("Index");
             }
 
-            newVehicle.Usuarios = db.Users.Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                Name = u.Name
-            }).ToList();
+            bool existe = db.Vehicles.Any(v =>
+                v.LicensePlate == newVehicle.LicensePlate &&
+                v.VehicleType == newVehicle.VehicleType);
 
-            return View("Index", newVehicle);
+            if (existe)
+            {
+                TempData["ErrorMessage"] = "Ya existe un vehículo con esta placa y tipo de vehículo.";
+                return RedirectToAction("Index");
+            }
+
+            var vehiculo = new Vehicle
+            {
+                Brand = newVehicle.Brand,
+                Color = newVehicle.Color,
+                LicensePlate = newVehicle.LicensePlate,
+                VehicleType = newVehicle.VehicleType,
+                OwnerId = newVehicle.OwnerId,
+                UsesSpecialSpace = newVehicle.UsesSpecialSpace,
+            };
+
+            db.Vehicles.Add(vehiculo);
+            db.SaveChanges();
+
+            TempData["SuccessMessage"] = "Vehículo registrado exitosamente.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult EliminarVehiculo(int id)
+        {
+            try
+            {
+                var vehiculo = db.Vehicles.Find(id);
+                if (vehiculo == null)
+                    return Json(new { success = false, message = "Vehículo no encontrado." });
+
+                db.Vehicles.Remove(vehiculo);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Vehículo eliminado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                var error = ex.InnerException?.Message ?? ex.Message;
+                return Json(new { success = false, message = "Error al eliminar: " + error });
+            }
         }
     }
 }

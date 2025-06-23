@@ -1,76 +1,88 @@
-﻿@model Ulacit_parking.Models.ViewModels.VehicleViewModel
+﻿@model List<Ulacit_parking.Models.ViewModels.VehicleViewModel>
+
 @{
-    ViewData["Title"] = "Registro de Vehículo";
+    ViewBag.Title = "Vehículos";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@Html.AntiForgeryToken()
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Vehículos</h2>
+        <a class="btn btn-success" href="@Url.Action("Create", "NuevoVehiculo")">
+            <i class="fas fa-plus"></i> Añadir Vehículo
+        </a>
+    </div>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <script>
-        alert('@Html.Raw(TempData["ErrorMessage"])');
-    </script>
-}
+    <input type="text" class="form-control mb-3" placeholder="Buscar por placa, marca o dueño..." onkeyup="filtrarVehiculos(this.value)" />
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <script>
-        alert('@Html.Raw(TempData["SuccessMessage"])');
-    </script>
-}
-
-
-
-<div class="container-fluid px-md-5" style="padding: 20px; border: 1px solid #ccc; border-radius: 10px; max-width: 700px; margin: 0 auto; height: 600px; position: relative; left: 0px;">
-    @using (Html.BeginForm("Create", "NuevoVehiculo", FormMethod.Post, new { id = "vehicleForm" }))
-    {
-        @Html.AntiForgeryToken()
-        <!-- Fila de Marca y Color -->
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <label for="marca">Marca</label>
-                @Html.TextBoxFor(model => model.Brand, new { @class = "form-control", placeholder = "Ingrese la marca del vehículo", required = "required" })
-            </div>
-            <div class="col-12 col-md-6">
-                <label for="color">Color</label>
-                @Html.TextBoxFor(model => model.Color, new { @class = "form-control", placeholder = "Ingrese el color del vehículo", required = "required" })
-            </div>
-        </div>
-
-        <!-- Fila de Número de Placa y Tipo -->
-        <div class="row mt-3">
-            <div class="col-12 col-md-6">
-                <label for="placa">Número de Placa</label>
-                @Html.TextBoxFor(model => model.LicensePlate, new { @class = "form-control", placeholder = "Ingrese el número de placa", required = "required" })
-            </div>
-            <div class="col-12 col-md-6">
-                <label for="tipo">Tipo de Vehículo</label>
-                @Html.DropDownListFor(model => model.VehicleType, new SelectList(new[] { "Carro", "Moto" }), "Seleccione un tipo", new { @class = "form-control", required = "required" })
-            </div>
-        </div>
-
-        <!-- Fila de Dueño (Usuario) y Usa Espacio Ley 7600 -->
-        <div class="row mt-3">
-            <div class="col-12 col-md-6">
-                <label for="dueño">Dueño (Usuario)</label>
-                @Html.DropDownListFor(
-                    model => model.OwnerId,
-                    new SelectList(Model.Usuarios, "Id", "Name"),
-                    "Seleccione un dueño",
-                    new { @class = "form-control", required = "required" }
-                )
-            </div>
-            <div class="col-12 col-md-6">
-                <label for="espacioLey7600">Usa Espacio Ley 7600</label>
-                @Html.CheckBoxFor(model => model.UsesSpecialSpace, new { @class = "form-check-input" })
-                <small id="helpBlock" class="form-text text-muted">Marque esta opción si el vehículo usa un espacio especial según la Ley 7600.</small>
-            </div>
-        </div>
-
-        <!-- Botón de Registrar Vehículo -->
-        <div class="row mt-4">
-            <div class="col-10 text-center">
-                <button type="submit" class="btn btn-primary btn-agregar">Registrar Vehículo</button>
-            </div>
-        </div>
-    }
+    <table class="table table-bordered table-hover" id="vehiculosTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Dueño</th>
+                <th>Placa</th>
+                <th>Marca</th>
+                <th>Color</th>
+                <th>Tipo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehiculo in Model)
+            {
+                <tr>
+                    <td>@vehiculo.OwnerName</td>
+                    <td>@vehiculo.LicensePlate</td>
+                    <td>@vehiculo.Brand</td>
+                    <td>@vehiculo.Color</td>
+                    <td>@vehiculo.VehicleType</td>
+                    <td>
+                        <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary me-1" title="Editar">
+                            <!-- falta editar en el controlador y vista -->
+                            <i class="fas fa-pen"></i>
+                        </a>
+                        <button class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminarVehiculo(@vehiculo.Id)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
+<script>
+    function filtrarVehiculos(valor) {
+        const rows = document.querySelectorAll("#vehiculosTable tbody tr");
+        valor = valor.toLowerCase();
+        rows.forEach(row => {
+            const texto = row.textContent.toLowerCase();
+            row.style.display = texto.includes(valor) ? "" : "none";
+        });
+    }
+
+    function eliminarVehiculo(id) {
+        if (!confirm("¿Está seguro que desea eliminar este vehículo?")) return;
+
+        fetch('@Url.Action("EliminarVehiculo", "NuevoVehiculo")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': getAntiForgeryToken()
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(() => alert("Error al procesar la solicitud."));
+    }
+
+    function getAntiForgeryToken() {
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        return tokenInput ? tokenInput.value : '';
+    }
+</script>
