@@ -10,6 +10,7 @@ namespace Ulacit_parking.Controllers
     {
         private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
+        [HttpGet]
         public ActionResult Index()
         {
             var vehiculos = db.Vehicles
@@ -27,7 +28,7 @@ namespace Ulacit_parking.Controllers
 
             return View(vehiculos);
         }
-
+        [HttpGet]
         public ActionResult Create()
         {
             var model = new VehicleViewModel
@@ -45,13 +46,6 @@ namespace Ulacit_parking.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(VehicleViewModel newVehicle)
         {
-            var admin = Session["AdminLogged"] as User;
-            if (admin != null && admin.Email.EndsWith("@guarda.com"))
-            {
-                TempData["ErrorMessage"] = "No tienes permisos para agregar vehículos.";
-                return RedirectToAction("Index", "AdminInicio");
-            }
-
             if (!ModelState.IsValid)
             {
                 newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();

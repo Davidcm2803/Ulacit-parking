@@ -10,10 +10,7 @@ namespace Ulacit_parking.Models.ViewModels
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-
-        [Column("date_of_bith")] // Esto es lo importante
         public DateTime DateOfBirth { get; set; }
-
         public string Identification { get; set; }
         public int RoleId { get; set; }
         public string Password { get; set; }

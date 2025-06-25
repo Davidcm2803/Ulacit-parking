@@ -35,11 +35,8 @@ namespace Ulacit_parking.Controllers
                     ViewBag.ErrorMessage = "La contraseña es incorrecta.";
                     return View();
                 }
-
-                // Guardar en sesión el ID del
                 Session["UserId"] = user.Id;
 
-                // Verifica inicio de sesión
                 if (user.FirstLogin == "0")
                 {
                     TempData["FirstLogin"] = true;

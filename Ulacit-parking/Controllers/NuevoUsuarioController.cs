@@ -180,8 +180,5 @@ namespace Ulacit_parking.Controllers
                 return Json(new { success = false, message = "Error: " + error });
             }
         }
-
-
-
     }
 }

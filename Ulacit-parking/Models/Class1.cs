@@ -1,7 +1,7 @@
 ﻿using MySql.Data.EntityFramework;
 using System.Collections.Generic;
 using System.Data.Entity;
-
+ 
 
 namespace Ulacit_parking.Models
 {
@@ -64,8 +64,7 @@ namespace Ulacit_parking.Models
         public int RegularCapacity { get; set; }
         public int MotorcycleCapacity { get; set; }
         public int SpecialCapacity { get; set; }
-        //public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
-        //public virtual ICollection<Vehicle> Vehicles { get; set; }
+
     }
 
     public class ParkingAssignment
