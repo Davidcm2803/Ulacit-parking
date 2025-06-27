@@ -27,6 +27,7 @@
                     <th>Cédula</th>
                     <th>Correo</th>
                     <th>Fecha de Nacimiento</th>
+                    <th>Rol</th> 
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -38,6 +39,7 @@
                         <td>@user.Identification</td>
                         <td>@user.Email</td>
                         <td>@user.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                        <td>@user.RoleName</td>
                         <td>
                             <div class="d-flex flex-wrap gap-1">
                                 <a href="@Url.Action("Editar", "NuevoUsuario", new { id = user.Id })" class="btn btn-sm btn-primary" title="Editar">
@@ -62,6 +64,7 @@
                     <h5 class="card-title">@user.Name</h5>
                     <p class="card-text mb-1"><strong>Cédula:</strong> @user.Identification</p>
                     <p class="card-text mb-1"><strong>Correo:</strong> @user.Email</p>
+                    <p class="card-text mb-1"><strong>Rol:</strong> @user.RoleName</p>
                     <p class="card-text mb-2"><strong>Fecha Nac.:</strong> @user.DateOfBirth.ToString("yyyy-MM-dd")</p>
                     <div class="d-flex gap-2">
                         <a href="@Url.Action("Editar", "NuevoUsuario", new { id = user.Id })" class="btn btn-sm btn-primary">

@@ -57,8 +57,9 @@ namespace Ulacit_parking.Controllers
             var countVehiculos = db.Vehicles.Count(v => v.OwnerId == newVehicle.OwnerId);
             if (countVehiculos >= 2)
             {
-                TempData["ErrorMessage"] = "Este usuario ya tiene 2 vehículos registrados.";
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Este usuario ya tiene 2 vehículos registrados.");
+                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                return View(newVehicle);
             }
 
             bool existe = db.Vehicles.Any(v =>
@@ -67,8 +68,9 @@ namespace Ulacit_parking.Controllers
 
             if (existe)
             {
-                TempData["ErrorMessage"] = "Ya existe un vehículo con esta placa y tipo de vehículo.";
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Ya existe un vehículo con esta placa y tipo de vehículo.");
+                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                return View(newVehicle);
             }
 
             var vehiculo = new Vehicle
@@ -88,7 +90,7 @@ namespace Ulacit_parking.Controllers
             return RedirectToAction("Index");
         }
 
-        //ahora editar vehiculo
+
         [HttpGet]
         public ActionResult Edit(int id)
         {
@@ -96,7 +98,18 @@ namespace Ulacit_parking.Controllers
             if (vehiculo == null)
                 return HttpNotFound();
 
-            var usuariosList = db.Users.ToList();
+            var usuarios = db.Users
+                .Select(u => new { Id = u.Id, Nombre = u.Name })
+                .AsEnumerable()
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.Nombre
+                })
+                .ToList();
+
+            ViewBag.Usuarios = usuarios;
+
 
             var model = new VehicleViewModel
             {
@@ -111,6 +124,7 @@ namespace Ulacit_parking.Controllers
 
             return View(model);
         }
+
 
         [HttpPost]
         public JsonResult EditarVehiculo(int id, string brand, string color, string licensePlate, string vehicleType, int ownerId, bool usesSpecialSpace)

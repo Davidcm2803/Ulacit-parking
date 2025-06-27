@@ -13,8 +13,12 @@ namespace Ulacit_parking.Models.ViewModels
         public DateTime DateOfBirth { get; set; }
         public string Identification { get; set; }
         public int RoleId { get; set; }
+        [NotMapped]
+        public string RoleName { get; set; }
         public string Password { get; set; }
         public string FirstLogin { get; set; }
+
+
 
         public List<RoleViewModel> Roles { get; set; }
 

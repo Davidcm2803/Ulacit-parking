@@ -33,11 +33,19 @@
 
         <div class="mb-3">
             <label for="rol" class="form-label">Rol</label>
+            @{
+                var roles = ViewBag.Roles as IEnumerable<SelectListItem>;
+            }
             <select id="rol" class="form-select" required>
                 <option value="">Seleccione un rol</option>
-                @foreach (var rol in Model.Roles)
+                @if (roles != null)
                 {
-                    <option value="@rol.Id" @(rol.Id == Model.RoleId ? "selected" : "")>@rol.RoleName</option>
+                    foreach (var rol in roles)
+                    {
+                        <option value="@rol.Value" @(rol.Value == Model.RoleId.ToString() ? "selected" : "")>
+                            @rol.Text
+                        </option>
+                    }
                 }
             </select>
         </div>

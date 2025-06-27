@@ -36,14 +36,21 @@
         </div>
 
         <div class="mb-3">
-            <label for="ownerId" class="form-label">ID del owner</label>
-            <input type="text" class="form-control" id="ownerId" value="@Model.OwnerId" required>
+            <label for="ownerId" class="form-label">Propietario</label>
+            <select id="ownerId" class="form-select" required>
+                <option value="">Seleccione un usuario</option>
+                @foreach (var usuario in (List<SelectListItem>)ViewBag.Usuarios)
+                {
+                    <option value="@usuario.Value" @(usuario.Value == Model.OwnerId.ToString() ? "selected" : "")>
+                        @usuario.Text
+                    </option>
+                }
+            </select>
         </div>
-
         <div class="mb-3">
             <div class="col-12 col-md-6">
                 <label for="usesSpecialSpace">Usa Espacio Ley 7600</label>
-                <input type="checkbox" id="usesSpecialSpace" />
+                <input type="checkbox" id="usesSpecialSpace" @(Model.UsesSpecialSpace ? "checked" : "") />
                 <small id="helpBlock" class="form-text text-muted">Marque esta opción si el vehículo usa un espacio especial según la Ley 7600.</small>
             </div>
         </div>
@@ -61,10 +68,9 @@
         const licensePlate = document.getElementById("licensePlate").value.trim();
         const vehicleType = document.getElementById("vehicleType").value.trim();
         const ownerId = document.getElementById("ownerId").value.trim();
-        const licensePlate = document.getElementById("licensePlate").value.trim();
-        const usesSpecialSpace = document.getElementById("usesSpecialSpace").value;
+        const usesSpecialSpace = document.getElementById("usesSpecialSpace").checked;
 
-        if (!brand || !color || !licensePlate || !vehicleType || !ownerId || !licensePlate) {
+        if (!brand || !color || !licensePlate || !vehicleType || !ownerId) {
             alert("Por favor, complete todos los campos.");
             return;
         }
@@ -72,7 +78,7 @@
         fetch('/NuevoVehiculo/EditarVehiculo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, brand, color, licensePlate, vehicleType, ownerId, licensePlate, usesSpecialSpace})
+            body: JSON.stringify({ id, brand, color, licensePlate, vehicleType, ownerId, usesSpecialSpace })
         })
         .then(response => response.json())
         .then(data => {
@@ -84,3 +90,4 @@
         .catch(() => alert("Error al procesar la solicitud."));
     }
 </script>
+

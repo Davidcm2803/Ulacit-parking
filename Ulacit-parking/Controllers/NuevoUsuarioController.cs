@@ -15,18 +15,24 @@ namespace Ulacit_parking.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            var usuarios = _db.Users.Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                Name = u.Name,
-                Email = u.Email,
-                Identification = u.Identification,
-                DateOfBirth = u.DateOfBirth,
-                RoleId = u.RoleId
-            }).ToList();
+            var usuarios = _db.Users
+                .Select(u => new UserViewModel
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    Identification = u.Identification,
+                    DateOfBirth = u.DateOfBirth,
+                    RoleId = u.RoleId,
+                    RoleName = _db.Roles
+                                .Where(r => r.Id == u.RoleId)
+                                .Select(r => r.RoleName)
+                                .FirstOrDefault() ?? "Sin rol"
+                }).ToList();
 
             return View(usuarios);
         }
+
 
 
         [HttpGet]
@@ -99,7 +105,15 @@ namespace Ulacit_parking.Controllers
             if (usuario == null)
                 return HttpNotFound();
 
-            var rolesList = _db.Roles.ToList();
+            var roles = _db.Roles
+                .AsEnumerable()  // <-- Importante aquí
+                .Select(r => new SelectListItem
+                {
+                    Value = r.Id.ToString(),
+                    Text = r.RoleName
+                }).ToList();
+
+            ViewBag.Roles = roles;
 
             var model = new UserViewModel
             {
@@ -109,15 +123,11 @@ namespace Ulacit_parking.Controllers
                 Identification = usuario.Identification,
                 DateOfBirth = usuario.DateOfBirth,
                 RoleId = usuario.RoleId,
-                Roles = rolesList.Select(r => new RoleViewModel
-                {
-                    Id = r.Id,
-                    RoleName = r.RoleName
-                }).ToList()
             };
-
             return View(model);
         }
+
+
 
         [HttpPost]
         public JsonResult EditarUsuario(int id, string nombre, string cedula, string email, DateTime fechaNacimiento, int rol)
