@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using System.Web.Mvc;
 using Ulacit_parking.Models;
 using Ulacit_parking.Models.ViewModels;
@@ -85,6 +87,64 @@ namespace Ulacit_parking.Controllers
             TempData["SuccessMessage"] = "Vehículo registrado exitosamente.";
             return RedirectToAction("Index");
         }
+
+        //ahora editar vehiculo
+        [HttpGet]
+        public ActionResult Edit(int id)
+        {
+            var vehiculo = db.Vehicles.FirstOrDefault(u => u.Id == id);
+            if (vehiculo == null)
+                return HttpNotFound();
+
+            var usuariosList = db.Users.ToList();
+
+            var model = new VehicleViewModel
+            {
+                Id = vehiculo.Id,
+                Brand = vehiculo.Brand,
+                Color = vehiculo.Color,
+                LicensePlate = vehiculo.LicensePlate,
+                VehicleType = vehiculo.VehicleType,
+                OwnerId = vehiculo.OwnerId,
+                UsesSpecialSpace = (bool)vehiculo.UsesSpecialSpace
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public JsonResult EditarVehiculo(int id, string brand, string color, string licensePlate, string vehicleType, int ownerId, bool usesSpecialSpace)
+        {
+            try
+            {
+                var vehiculo = db.Vehicles.FirstOrDefault(u => u.Id == id);
+                if (vehiculo == null)
+                    return Json(new { success = false, message = "Vehiculo no encontrado." });
+
+
+                if (db.Vehicles.Any(u => u.LicensePlate == licensePlate && u.Id != id))
+                    return Json(new { success = false, message = "Placa ya registrada." });
+
+
+                vehiculo.Brand = brand;
+                vehiculo.Color = color;
+                vehiculo.LicensePlate = licensePlate;
+                vehiculo.VehicleType = vehicleType;
+                vehiculo.OwnerId = ownerId;
+                vehiculo.UsesSpecialSpace = usesSpecialSpace;
+
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Vehiculo actualizado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+
 
         [HttpPost]
         public JsonResult EliminarVehiculo(int id)
