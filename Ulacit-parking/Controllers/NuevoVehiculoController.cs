@@ -87,7 +87,6 @@ namespace Ulacit_parking.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public JsonResult EliminarVehiculo(int id)
         {
             try

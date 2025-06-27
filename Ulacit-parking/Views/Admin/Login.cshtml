@@ -21,7 +21,6 @@
         <div class="login-box">
             <div class="logo">
                 <img src="~/Content/img/ulacitlog.png" alt="logo" class="logo-img">
-                @*<h1><span class="orange-text">Park</span> In</h1>*@
             </div>
 
             @if (ViewBag.ErrorMessage != null)
@@ -34,7 +33,7 @@
             @if (TempData["SuccessMessage"] != null)
             {
                 <script>
-                    showAlert(); // Llama a la función para mostrar la alerta si hay un mensaje
+                    showAlert();
                 </script>
             }
 

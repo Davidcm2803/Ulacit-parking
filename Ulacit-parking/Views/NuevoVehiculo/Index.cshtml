@@ -5,81 +5,117 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @Html.AntiForgeryToken()
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Vehículos</h2>
-        <a class="btn btn-success" href="@Url.Action("Create", "NuevoVehiculo")">
+
+<div class="container mt-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
+        <h2 class="m-0">Vehículos</h2>
+        <a class="btn btn-success align-self-md-end" href="@Url.Action("Create", "NuevoVehiculo")">
             <i class="fas fa-plus"></i> Añadir Vehículo
         </a>
     </div>
 
-    <input type="text" class="form-control mb-3" placeholder="Buscar por placa, marca o dueño..." onkeyup="filtrarVehiculos(this.value)" />
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Buscar por placa, marca o dueño..." onkeyup="filtrarVehiculos(this.value)" id="filtroInput" />
+    </div>
 
-    <table class="table table-bordered table-hover" id="vehiculosTable">
-        <thead class="table-dark">
-            <tr>
-                <th>Dueño</th>
-                <th>Placa</th>
-                <th>Marca</th>
-                <th>Color</th>
-                <th>Tipo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var vehiculo in Model)
-            {
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-bordered table-hover" id="vehiculosTable" style="min-width: 700px;">
+            <thead class="table-dark">
                 <tr>
-                    <td>@vehiculo.OwnerName</td>
-                    <td>@vehiculo.LicensePlate</td>
-                    <td>@vehiculo.Brand</td>
-                    <td>@vehiculo.Color</td>
-                    <td>@vehiculo.VehicleType</td>
-                    <td>
-                        <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary me-1" title="Editar">
-                            <!-- falta editar en el controlador y vista -->
-                            <i class="fas fa-pen"></i>
-                        </a>
-                        <button class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminarVehiculo(@vehiculo.Id)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
+                    <th>Dueño</th>
+                    <th>Placa</th>
+                    <th>Marca</th>
+                    <th>Color</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var vehiculo in Model)
+                {
+                    <tr>
+                        <td>@vehiculo.OwnerName</td>
+                        <td>@vehiculo.LicensePlate</td>
+                        <td>@vehiculo.Brand</td>
+                        <td>@vehiculo.Color</td>
+                        <td>@vehiculo.VehicleType</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminarVehiculo(@vehiculo.Id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-md-none" id="vehiculosCards">
+        @foreach (var vehiculo in Model)
+        {
+            <div class="card mb-3 vehiculo-card">
+                <div class="card-body">
+                    <h5 class="card-title">@vehiculo.LicensePlate - @vehiculo.Brand</h5>
+                    <p class="card-text mb-1"><strong>Dueño:</strong> @vehiculo.OwnerName</p>
+                    <p class="card-text mb-1"><strong>Color:</strong> @vehiculo.Color</p>
+                    <p class="card-text mb-2"><strong>Tipo:</strong> @vehiculo.VehicleType</p>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary">
+                            <i class="fas fa-pen"></i> Editar
+                        </a>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarVehiculo(@vehiculo.Id)">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 <script>
     function filtrarVehiculos(valor) {
-        const rows = document.querySelectorAll("#vehiculosTable tbody tr");
         valor = valor.toLowerCase();
+
+        const rows = document.querySelectorAll("#vehiculosTable tbody tr");
         rows.forEach(row => {
             const texto = row.textContent.toLowerCase();
             row.style.display = texto.includes(valor) ? "" : "none";
         });
+
+        const cards = document.querySelectorAll(".vehiculo-card");
+        cards.forEach(card => {
+            const texto = card.textContent.toLowerCase();
+            card.style.display = texto.includes(valor) ? "" : "none";
+        });
     }
 
     function eliminarVehiculo(id) {
-        if (!confirm("¿Está seguro que desea eliminar este vehículo?")) return;
+    if (!confirm("¿Está seguro que desea eliminar este vehículo?")) return;
 
-        fetch('@Url.Action("EliminarVehiculo", "NuevoVehiculo")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': getAntiForgeryToken()
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(() => alert("Error al procesar la solicitud."));
-    }
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("__RequestVerificationToken", getAntiForgeryToken());
+
+    fetch('@Url.Action("EliminarVehiculo", "NuevoVehiculo")', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(() => alert("Error al procesar la solicitud."));
+}
+
 
     function getAntiForgeryToken() {
         const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');

@@ -52,6 +52,9 @@ namespace Ulacit_parking.Controllers
         {
             try
             {
+                if (!email.EndsWith("@ulacit.ed.cr", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { success = false, message = "El correo debe ser del dominio @ulacit.ed.cr." });
+
                 var rolEntity = _db.Roles.FirstOrDefault(r => r.Id == rol);
                 if (rolEntity == null)
                     return Json(new { success = false, message = "Rol inválido." });
@@ -71,7 +74,6 @@ namespace Ulacit_parking.Controllers
                     RoleId = rol,
                     Password = password,
                     FirstLogin = "0",
- 
                 };
 
                 using (var scope = new TransactionScope())
@@ -88,6 +90,7 @@ namespace Ulacit_parking.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
 
         [HttpGet]
         public ActionResult Editar(int id)
