@@ -41,7 +41,7 @@
                         <td>@vehiculo.VehicleType</td>
                         <td>
                             <div class="d-flex flex-wrap gap-1">
-                                <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary" title="Editar">
+                                <a href="@Url.Action("Edit", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary" title="Editar">
                                     <i class="fas fa-pen"></i>
                                 </a>
                                 <button class="btn btn-sm btn-danger" title="Eliminar" onclick="eliminarVehiculo(@vehiculo.Id)">
@@ -65,7 +65,7 @@
                     <p class="card-text mb-1"><strong>Color:</strong> @vehiculo.Color</p>
                     <p class="card-text mb-2"><strong>Tipo:</strong> @vehiculo.VehicleType</p>
                     <div class="d-flex gap-2">
-                        <a href="@Url.Action("Editar", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary">
+                        <a href="@Url.Action("Edit", "NuevoVehiculo", new { id = vehiculo.Id })" class="btn btn-sm btn-primary">
                             <i class="fas fa-pen"></i> Editar
                         </a>
                         <button class="btn btn-sm btn-danger" onclick="eliminarVehiculo(@vehiculo.Id)">

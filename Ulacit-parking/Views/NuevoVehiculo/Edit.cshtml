@@ -1,0 +1,86 @@
+﻿@model Ulacit_parking.Models.ViewModels.VehicleViewModel
+
+@{
+    ViewBag.Title = "Editar Vehiculo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2>Editar Vehiculo</h2>
+
+    <form id="formEditarVehiculo" onsubmit="return false;">
+        <input type="hidden" id="id" value="@Model.Id" />
+
+        <div class="mb-3">
+            <label for="brand" class="form-label">Marca</label>
+            <input type="text" class="form-control" id="brand" value="@Model.Brand" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="color" class="form-label">Color</label>
+            <input type="text" class="form-control" id="color" value="@Model.Color" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="licensePlate" class="form-label">Placa</label>
+            <input type="text" class="form-control" id="licensePlate" value="@Model.LicensePlate" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="vehicleType" class="form-label">Tipo de vehiculo</label>
+            <select id="vehicleType" class="form-select" required>
+                <option value="">Seleccione un tipo</option>
+                <option value="Carro">Carro</option>
+                <option value="Moto">Moto</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="ownerId" class="form-label">ID del owner</label>
+            <input type="text" class="form-control" id="ownerId" value="@Model.OwnerId" required>
+        </div>
+
+        <div class="mb-3">
+            <div class="col-12 col-md-6">
+                <label for="usesSpecialSpace">Usa Espacio Ley 7600</label>
+                <input type="checkbox" id="usesSpecialSpace" />
+                <small id="helpBlock" class="form-text text-muted">Marque esta opción si el vehículo usa un espacio especial según la Ley 7600.</small>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" onclick="editarVehiculo()">Guardar Cambios</button>
+        <a href="@Url.Action("Index", "NuevoVehiculo")" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    function editarVehiculo() {
+        const id = document.getElementById("id").value;
+        const brand = document.getElementById("brand").value.trim();
+        const color = document.getElementById("color").value.trim();
+        const licensePlate = document.getElementById("licensePlate").value.trim();
+        const vehicleType = document.getElementById("vehicleType").value.trim();
+        const ownerId = document.getElementById("ownerId").value.trim();
+        const licensePlate = document.getElementById("licensePlate").value.trim();
+        const usesSpecialSpace = document.getElementById("usesSpecialSpace").value;
+
+        if (!brand || !color || !licensePlate || !vehicleType || !ownerId || !licensePlate) {
+            alert("Por favor, complete todos los campos.");
+            return;
+        }
+
+        fetch('/NuevoVehiculo/EditarVehiculo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, brand, color, licensePlate, vehicleType, ownerId, licensePlate, usesSpecialSpace})
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                window.location.href = '@Url.Action("Index", "NuevoVehiculo")';
+            }
+        })
+        .catch(() => alert("Error al procesar la solicitud."));
+    }
+</script>

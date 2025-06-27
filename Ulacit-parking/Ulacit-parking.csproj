@@ -415,6 +415,7 @@
     <Content Include="Views\NuevoUsuario\Editar.cshtml" />
     <Content Include="Views\NuevoVehiculo\Index.cshtml" />
     <Content Include="Views\Admin\CambiarPassword.cshtml" />
+    <Content Include="Views\NuevoVehiculo\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
