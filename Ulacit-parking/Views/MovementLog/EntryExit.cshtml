@@ -1,0 +1,45 @@
+﻿@model Ulacit_parking.Models.MovementLogs
+
+@{
+    ViewBag.Title = "Registrar Entrada o Salida";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">@ViewBag.Title</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @using (Html.BeginForm("EntryExit", "MovementLog", FormMethod.Post, new { @class = "card p-4 shadow" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            @Html.Label("Vehículo", htmlAttributes: new { @class = "form-label" })
+            @Html.DropDownList("VehicleId", ViewBag.VehicleId as SelectList, "Seleccione un vehículo", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.VehicleId, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.Label("Parqueo", htmlAttributes: new { @class = "form-label" })
+            @Html.DropDownList("ParkingLotId", ViewBag.ParkingLotId as SelectList, "Seleccione un parqueo", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ParkingLotId, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="mb-3">
+            @Html.Label("Tipo de Movimiento", htmlAttributes: new { @class = "form-label" })
+            @Html.DropDownListFor(m => m.EntryExit, new SelectList(new[] {
+                new { Value = "E", Text = "Entrada" },
+                new { Value = "S", Text = "Salida" }
+            }, "Value", "Text"), "Seleccione tipo de movimiento", new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.EntryExit, "", new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-primary">Registrar Movimiento</button>
+    }
+</div>

@@ -1,16 +1,18 @@
 ﻿using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Ulacit_parking.Models;
 
-namespace Ulacit_parking.Models.ViewModels
+[Table("movementlogs")]
+public class MovementLogs
 {
-    public class MovementLogViewModel
-    {
-        //revisar con el modelo de mysql y quitar lo que se deba
-        public int id { get; set; }
-        public Nullable<int> vehicle_id { get; set; }
-        public string action { get; set; }
-        public Nullable<System.DateTime> timestamp { get; set; }
-        public string reason { get; set; }
-
-        public virtual VehicleViewModel Vehicle { get; set; }
-    }
+    [Key]
+    public int Id { get; set; }
+    public int? VehicleId { get; set; }
+    public string EntryExit { get; set; }
+    public DateTime Timestamp { get; set; }
+    public int? ParkingLotId { get; set; }
+    public virtual Vehicle Vehicle { get; set; }
+    public virtual ParkingLot ParkingLot { get; set; }
 }

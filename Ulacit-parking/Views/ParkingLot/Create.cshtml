@@ -1,0 +1,58 @@
+﻿@model Ulacit_parking.Models.ViewModels.ParkingLotViewModel
+@{
+    ViewData["Title"] = "Registro de Estacionamiento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="max-width: 750px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <h2 class="mb-4 text-center">@ViewData["Title"]</h2>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @using (Html.BeginForm("Create", "ParkingLot", FormMethod.Post, new { id = "parkingForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="mb-4">
+                    <label for="name" class="form-label">Nombre del Estacionamiento</label>
+                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control", placeholder = "Ingrese el nombre", required = "required" })
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label for="regularCapacity" class="form-label">Capacidad Regular</label>
+                        @Html.TextBoxFor(model => model.RegularCapacity, new { @class = "form-control", type = "number", min = "0", placeholder = "Ej: 1", required = "required" })
+                    </div>
+
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <label for="motorcycleCapacity" class="form-label">Capacidad Motos</label>
+                        @Html.TextBoxFor(model => model.MotorcycleCapacity, new { @class = "form-control", type = "number", min = "0", placeholder = "Ej: 2", required = "required" })
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="specialCapacity" class="form-label">Capacidad Especial</label>
+                        @Html.TextBoxFor(model => model.SpecialCapacity, new { @class = "form-control", type = "number", min = "0", placeholder = "Ej: 3", required = "required" })
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary px-4">Registrar Parqueo</button>
+                    <a href="@Url.Action("Index", "ParkingLot")" class="btn btn-secondary ms-2">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

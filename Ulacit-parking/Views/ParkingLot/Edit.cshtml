@@ -1,0 +1,66 @@
+﻿@model Ulacit_parking.Models.ViewModels.ParkingLotViewModel
+
+@{
+    ViewData["Title"] = "Editar Estacionamiento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="max-width: 600px;">
+    <h2>@ViewData["Title"]</h2>
+
+    <form id="formEditarParqueo" onsubmit="return false;">
+        <input type="hidden" id="id" value="@Model.Id" />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Nombre del Estacionamiento</label>
+            <input type="text" class="form-control" id="name" value="@Model.Name" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="regularCapacity" class="form-label">Capacidad Regular</label>
+            <input type="number" class="form-control" id="regularCapacity" value="@Model.RegularCapacity" min="0" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="motorcycleCapacity" class="form-label">Capacidad para Motos</label>
+            <input type="number" class="form-control" id="motorcycleCapacity" value="@Model.MotorcycleCapacity" min="0" required />
+        </div>
+
+        <div class="mb-4">
+            <label for="specialCapacity" class="form-label">Capacidad Especial (Ley 7600)</label>
+            <input type="number" class="form-control" id="specialCapacity" value="@Model.SpecialCapacity" min="0" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" onclick="editarParqueo()">Guardar Cambios</button>
+        <a href="@Url.Action("Index", "ParkingLot")" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+
+<script>
+    function editarParqueo() {
+        const id = document.getElementById("id").value;
+        const name = document.getElementById("name").value.trim();
+        const regularCapacity = parseInt(document.getElementById("regularCapacity").value);
+        const motorcycleCapacity = parseInt(document.getElementById("motorcycleCapacity").value);
+        const specialCapacity = parseInt(document.getElementById("specialCapacity").value);
+
+        if (!name || regularCapacity < 0 || motorcycleCapacity < 0 || specialCapacity < 0) {
+            alert("Por favor, complete todos los campos correctamente.");
+            return;
+        }
+
+        fetch('/ParkingLot/EditarParqueo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, regularCapacity, motorcycleCapacity, specialCapacity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                window.location.href = '@Url.Action("Index", "ParkingLot")';
+            }
+        })
+        .catch(() => alert("Error al procesar la solicitud."));
+    }
+</script>

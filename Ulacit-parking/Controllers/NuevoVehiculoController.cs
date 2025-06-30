@@ -30,6 +30,7 @@ namespace Ulacit_parking.Controllers
 
             return View(vehiculos);
         }
+
         [HttpGet]
         public ActionResult Create()
         {
@@ -48,47 +49,56 @@ namespace Ulacit_parking.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(VehicleViewModel newVehicle)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
-                return View(newVehicle);
+                if (!ModelState.IsValid)
+                {
+                    newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                    return View(newVehicle);
+                }
+
+                var countVehiculos = db.Vehicles.Count(v => v.OwnerId == newVehicle.OwnerId);
+                if (countVehiculos >= 2)
+                {
+                    ModelState.AddModelError("", "Este usuario ya tiene 2 vehículos registrados.");
+                    newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                    return View(newVehicle);
+                }
+
+                bool existe = db.Vehicles.Any(v =>
+                    v.LicensePlate == newVehicle.LicensePlate &&
+                    v.VehicleType == newVehicle.VehicleType);
+
+                if (existe)
+                {
+                    ModelState.AddModelError("", "Ya existe un vehículo con esta placa y tipo de vehículo.");
+                    newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
+                    return View(newVehicle);
+                }
+
+                var vehiculo = new Vehicle
+                {
+                    Brand = newVehicle.Brand,
+                    Color = newVehicle.Color,
+                    LicensePlate = newVehicle.LicensePlate,
+                    VehicleType = newVehicle.VehicleType,
+                    OwnerId = newVehicle.OwnerId,
+                    UsesSpecialSpace = newVehicle.UsesSpecialSpace,
+                };
+
+                db.Vehicles.Add(vehiculo);
+                db.SaveChanges();
+
+                TempData["SuccessMessage"] = "Vehículo registrado exitosamente.";
+                return RedirectToAction("Index");
             }
-
-            var countVehiculos = db.Vehicles.Count(v => v.OwnerId == newVehicle.OwnerId);
-            if (countVehiculos >= 2)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Este usuario ya tiene 2 vehículos registrados.");
-                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
-                return View(newVehicle);
+                TempData["ErrorMessage"] = "Error al registrar el vehículo: " + ex.Message;
+                return RedirectToAction("Index");
             }
-
-            bool existe = db.Vehicles.Any(v =>
-                v.LicensePlate == newVehicle.LicensePlate &&
-                v.VehicleType == newVehicle.VehicleType);
-
-            if (existe)
-            {
-                ModelState.AddModelError("", "Ya existe un vehículo con esta placa y tipo de vehículo.");
-                newVehicle.Usuarios = db.Users.Select(u => new UserViewModel { Id = u.Id, Name = u.Name }).ToList();
-                return View(newVehicle);
-            }
-
-            var vehiculo = new Vehicle
-            {
-                Brand = newVehicle.Brand,
-                Color = newVehicle.Color,
-                LicensePlate = newVehicle.LicensePlate,
-                VehicleType = newVehicle.VehicleType,
-                OwnerId = newVehicle.OwnerId,
-                UsesSpecialSpace = newVehicle.UsesSpecialSpace,
-            };
-
-            db.Vehicles.Add(vehiculo);
-            db.SaveChanges();
-
-            TempData["SuccessMessage"] = "Vehículo registrado exitosamente.";
-            return RedirectToAction("Index");
         }
+
 
 
         [HttpGet]

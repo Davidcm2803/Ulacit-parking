@@ -1,39 +1,37 @@
 ﻿using MySql.Data.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
- 
 
 namespace Ulacit_parking.Models
 {
     [DbConfigurationType(typeof(MySqlEFConfiguration))]
     public class ParkingDatabaseContext : DbContext
     {
-        public ParkingDatabaseContext() : base("name=ParkingDatabaseContext")
-        {
-        }
+        public ParkingDatabaseContext() : base("name=ParkingDatabaseContext") { }
 
-        // DbSets que representan las tablas en la base de datos
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<ParkingLot> ParkingLots { get; set; }
         public DbSet<ParkingAssignment> ParkingAssignments { get; set; }
-        public DbSet<MovementLog> MovementLogs { get; set; }
+        public DbSet<MovementLogs> MovementLogs { get; set; }
     }
 
-    // Aquí agrego las clases básicas de las entidades para que tengas referencia
     public class User
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public System.DateTime DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string Identification { get; set; }
         public int RoleId { get; set; }
         public string Password { get; set; }
         public string FirstLogin { get; set; }
+
         public virtual Role Role { get; set; }
         public virtual ICollection<Vehicle> Vehicles { get; set; }
+        public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
     }
 
     public class Role
@@ -55,6 +53,7 @@ namespace Ulacit_parking.Models
         public bool? UsesSpecialSpace { get; set; }
 
         public virtual User Owner { get; set; }
+        public virtual ICollection<MovementLogs> MovementLogs { get; set; }
     }
 
     public class ParkingLot
@@ -65,6 +64,8 @@ namespace Ulacit_parking.Models
         public int MotorcycleCapacity { get; set; }
         public int SpecialCapacity { get; set; }
 
+        public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
+        public virtual ICollection<MovementLogs> MovementLogs { get; set; }
     }
 
     public class ParkingAssignment
@@ -72,20 +73,21 @@ namespace Ulacit_parking.Models
         public int Id { get; set; }
         public int UserId { get; set; }
         public int ParkingLotId { get; set; }
-        public System.DateTime AssignmentDate { get; set; }
+        public DateTime AssignmentDate { get; set; }
 
         public virtual User User { get; set; }
         public virtual ParkingLot ParkingLot { get; set; }
     }
 
-    public class MovementLog
+    public class MovementLogs
     {
         public int Id { get; set; }
         public int? VehicleId { get; set; }
-        public string Action { get; set; }
-        public System.DateTime? Timestamp { get; set; }
-        public string Reason { get; set; }
+        public string EntryExit { get; set; } 
+        public DateTime Timestamp { get; set; }
+        public int? ParkingLotId { get; set; }
 
         public virtual Vehicle Vehicle { get; set; }
+        public virtual ParkingLot ParkingLot { get; set; }
     }
 }

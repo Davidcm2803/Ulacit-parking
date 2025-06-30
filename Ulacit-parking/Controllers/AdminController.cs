@@ -11,6 +11,8 @@ namespace Ulacit_parking.Controllers
     {
         private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
+        private const string ContraseñaPorDefecto = "Ulacit123";
+
         [HttpGet]
         public ActionResult Login()
         {
@@ -35,6 +37,7 @@ namespace Ulacit_parking.Controllers
                     ViewBag.ErrorMessage = "La contraseña es incorrecta.";
                     return View();
                 }
+
                 Session["UserId"] = user.Id;
 
                 if (user.FirstLogin == "0")
@@ -43,13 +46,11 @@ namespace Ulacit_parking.Controllers
                     return RedirectToAction("CambiarPassword", "Admin");
                 }
 
-                // Redirigir según el rol
                 TempData["SuccessMessage"] = "Inicio de sesión exitoso.";
+
                 switch (user.RoleId)
                 {
                     case 1:
-                        Session["AdminLogged"] = user;
-                        return RedirectToAction("Index", "AdminInicio");
                     case 2:
                         Session["AdminLogged"] = user;
                         return RedirectToAction("Index", "AdminInicio");
@@ -66,6 +67,7 @@ namespace Ulacit_parking.Controllers
                 string fullError = ex.Message;
                 if (ex.InnerException != null)
                     fullError += " -- INNER: " + ex.InnerException.Message;
+
                 ViewBag.ErrorMessage = "Ocurrió un error: " + fullError;
                 return View();
             }
@@ -92,6 +94,7 @@ namespace Ulacit_parking.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CambiarPassword(UserViewModel model)
         {
             if (string.IsNullOrWhiteSpace(model.Password))
@@ -104,9 +107,20 @@ namespace Ulacit_parking.Controllers
             if (user == null)
                 return HttpNotFound();
 
+            if (user.Password == model.Password)
+            {
+                ModelState.AddModelError("Password", "La nueva contraseña no puede ser igual a la anterior.");
+                return View(model);
+            }
+
+            if (model.Password == ContraseñaPorDefecto)
+            {
+                ModelState.AddModelError("Password", "No puede usar la contraseña por defecto 'Ulacit123'.");
+                return View(model);
+            }
+
             user.Password = model.Password;
             user.FirstLogin = "1";
-
             db.SaveChanges();
 
             TempData["SuccessMessage"] = "Contraseña actualizada correctamente.";
@@ -114,8 +128,6 @@ namespace Ulacit_parking.Controllers
             switch (user.RoleId)
             {
                 case 1:
-                    Session["AdminLogged"] = user;
-                    return RedirectToAction("Index", "AdminInicio");
                 case 2:
                     Session["AdminLogged"] = user;
                     return RedirectToAction("Index", "AdminInicio");
@@ -126,22 +138,6 @@ namespace Ulacit_parking.Controllers
                     return RedirectToAction("Login");
             }
         }
-
-        public ActionResult TestMySqlConnection()
-        {
-            string connStr = "server=localhost;port=3306;database=parkingdatabase;uid=root;pwd=;";
-            try
-            {
-                using (var conn = new MySqlConnection(connStr))
-                {
-                    conn.Open();
-                }
-                return Content("Conexión MySQL exitosa");
-            }
-            catch (Exception ex)
-            {
-                return Content("Error de conexión: " + ex.Message);
-            }
-        }
     }
 }
+

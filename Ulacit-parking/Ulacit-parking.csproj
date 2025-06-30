@@ -184,8 +184,10 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\AdminInicioController.cs" />
+    <Compile Include="Controllers\MovementLogController.cs" />
     <Compile Include="Controllers\NuevoUsuarioController.cs" />
     <Compile Include="Controllers\NuevoVehiculoController.cs" />
+    <Compile Include="Controllers\ParkingLotsController.cs" />
     <Compile Include="Controllers\UsuarioController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -402,9 +404,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Admin\Login.cshtml" />
     <Content Include="Views\AdminInicio\Index.cshtml" />
     <Content Include="Views\NuevoUsuario\Index.cshtml" />
@@ -416,10 +415,14 @@
     <Content Include="Views\NuevoVehiculo\Index.cshtml" />
     <Content Include="Views\Admin\CambiarPassword.cshtml" />
     <Content Include="Views\NuevoVehiculo\Edit.cshtml" />
+    <Content Include="Views\ParkingLot\Index.cshtml" />
+    <Content Include="Views\ParkingLot\Create.cshtml" />
+    <Content Include="Views\ParkingLot\Edit.cshtml" />
+    <Content Include="Views\MovementLog\Index.cshtml" />
+    <Content Include="Views\MovementLog\EntryExit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Vehicle\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

@@ -10,12 +10,12 @@ namespace Ulacit_parking.Controllers
 {
     public class NuevoUsuarioController : Controller
     {
-        private readonly ParkingDatabaseContext _db = new ParkingDatabaseContext();
+        private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
         [HttpGet]
         public ActionResult Index()
         {
-            var usuarios = _db.Users
+            var usuarios = db.Users
                 .Select(u => new UserViewModel
                 {
                     Id = u.Id,
@@ -24,7 +24,7 @@ namespace Ulacit_parking.Controllers
                     Identification = u.Identification,
                     DateOfBirth = u.DateOfBirth,
                     RoleId = u.RoleId,
-                    RoleName = _db.Roles
+                    RoleName = db.Roles
                                 .Where(r => r.Id == u.RoleId)
                                 .Select(r => r.RoleName)
                                 .FirstOrDefault() ?? "Sin rol"
@@ -38,7 +38,7 @@ namespace Ulacit_parking.Controllers
         [HttpGet]
         public ActionResult Add()
         {
-            var rolesList = _db.Roles.ToList();
+            var rolesList = db.Roles.ToList();
             var rolesViewModelList = rolesList.Select(r => new RoleViewModel
             {
                 Id = r.Id,
@@ -61,14 +61,14 @@ namespace Ulacit_parking.Controllers
                 if (!email.EndsWith("@ulacit.ed.cr", StringComparison.OrdinalIgnoreCase))
                     return Json(new { success = false, message = "El correo debe ser del dominio @ulacit.ed.cr." });
 
-                var rolEntity = _db.Roles.FirstOrDefault(r => r.Id == rol);
+                var rolEntity = db.Roles.FirstOrDefault(r => r.Id == rol);
                 if (rolEntity == null)
                     return Json(new { success = false, message = "Rol inválido." });
 
-                if (_db.Users.Any(u => u.Email == email))
+                if (db.Users.Any(u => u.Email == email))
                     return Json(new { success = false, message = "Correo ya registrado." });
 
-                if (_db.Users.Any(u => u.Identification == cedula))
+                if (db.Users.Any(u => u.Identification == cedula))
                     return Json(new { success = false, message = "Cédula ya registrada." });
 
                 var nuevoUsuario = new User
@@ -84,8 +84,8 @@ namespace Ulacit_parking.Controllers
 
                 using (var scope = new TransactionScope())
                 {
-                    _db.Users.Add(nuevoUsuario);
-                    _db.SaveChanges();
+                    db.Users.Add(nuevoUsuario);
+                    db.SaveChanges();
                     scope.Complete();
                 }
 
@@ -101,12 +101,12 @@ namespace Ulacit_parking.Controllers
         [HttpGet]
         public ActionResult Editar(int id)
         {
-            var usuario = _db.Users.FirstOrDefault(u => u.Id == id);
+            var usuario = db.Users.FirstOrDefault(u => u.Id == id);
             if (usuario == null)
                 return HttpNotFound();
 
-            var roles = _db.Roles
-                .AsEnumerable()  // <-- Importante aquí
+            var roles = db.Roles
+                .AsEnumerable() 
                 .Select(r => new SelectListItem
                 {
                     Value = r.Id.ToString(),
@@ -134,15 +134,15 @@ namespace Ulacit_parking.Controllers
         {
             try
             {
-                var usuario = _db.Users.FirstOrDefault(u => u.Id == id);
+                var usuario = db.Users.FirstOrDefault(u => u.Id == id);
                 if (usuario == null)
                     return Json(new { success = false, message = "Usuario no encontrado." });
 
 
-                if (_db.Users.Any(u => u.Email == email && u.Id != id))
+                if (db.Users.Any(u => u.Email == email && u.Id != id))
                     return Json(new { success = false, message = "Correo ya registrado." });
 
-                if (_db.Users.Any(u => u.Identification == cedula && u.Id != id))
+                if (db.Users.Any(u => u.Identification == cedula && u.Id != id))
                     return Json(new { success = false, message = "Cédula ya registrada." });
 
                 usuario.Name = nombre;
@@ -151,7 +151,7 @@ namespace Ulacit_parking.Controllers
                 usuario.DateOfBirth = fechaNacimiento;
                 usuario.RoleId = rol;
 
-                _db.SaveChanges();
+                db.SaveChanges();
 
                 return Json(new { success = true, message = "Usuario actualizado exitosamente." });
             }
@@ -167,23 +167,22 @@ namespace Ulacit_parking.Controllers
         {
             try
             {
-                var usuario = _db.Users.FirstOrDefault(u => u.Id == id);
+                var usuario = db.Users.FirstOrDefault(u => u.Id == id);
 
                 if (usuario == null)
                     return Json(new { success = false, message = "Usuario no encontrado." });
 
                 // Cargar los vehículos del usuario
-                _db.Entry(usuario).Collection(u => u.Vehicles).Load();
+                db.Entry(usuario).Collection(u => u.Vehicles).Load();
 
                 // Eliminar todos los vehículos relacionados
                 foreach (var vehiculo in usuario.Vehicles.ToList())
                 {
-                    _db.Vehicles.Remove(vehiculo);
+                    db.Vehicles.Remove(vehiculo);
                 }
 
-                // Eliminar el usuario
-                _db.Users.Remove(usuario);
-                _db.SaveChanges();
+                db.Users.Remove(usuario);
+                db.SaveChanges();
 
                 return Json(new { success = true, message = "Usuario eliminado exitosamente." });
             }

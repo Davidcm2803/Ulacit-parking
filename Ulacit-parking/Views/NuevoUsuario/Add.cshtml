@@ -75,15 +75,16 @@
                         <small class="form-text text-muted">Selecciona un rol</small>
                     </div>
                 </div>
-
-                <div class="text-center">
-                    <button type="button" class="btn btn-primary" onclick="agregarDatos()">Agregar</button>
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-primary" onclick="agregarDatos()">Registrar Usuario</button>
+                        <a href="@Url.Action("Index", "NuevoUsuario")" class="btn btn-secondary ms-2">Cancelar</a>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/gijgo@1.9.14/js/gijgo.min.js"></script>

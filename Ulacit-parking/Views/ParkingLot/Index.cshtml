@@ -1,0 +1,101 @@
+﻿@model IEnumerable<Ulacit_parking.Models.ViewModels.ParkingLotViewModel>
+
+@{
+    ViewData["Title"] = "Lista de Estacionamientos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container mt-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
+        <h2 class="m-0">@ViewData["Title"]</h2>
+        <a class="btn btn-success align-self-md-end" href="@Url.Action("Create", "ParkingLot")">
+            <i class="fas fa-plus"></i> Añadir Parqueo
+        </a>
+    </div>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Buscar por nombre o capacidad..." onkeyup="filtrarEstacionamientos(this.value)" id="filtroInput" />
+    </div>
+
+    <div class="table-responsive d-none d-md-block">
+        <table class="table table-bordered table-hover" id="estacionamientosTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Capacidad Regular</th>
+                    <th>Capacidad para Motos</th>
+                    <th>Capacidad Especial</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.RegularCapacity</td>
+                        <td>@item.MotorcycleCapacity</td>
+                        <td>@item.SpecialCapacity</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a href="@Url.Action("Edit", "ParkingLot", new { id = item.Id })" class="btn btn-sm btn-primary" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                @using (Html.BeginForm("DeleteConfirmed", "ParkingLot", new { id = item.Id }, FormMethod.Post, new { onsubmit = "return confirm('¿Seguro que desea eliminar este estacionamiento?');", style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-md-none" id="estacionamientosCards">
+        @foreach (var item in Model)
+        {
+            <div class="card mb-3 estacionamiento-card">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text mb-1"><strong>Capacidad Regular:</strong> @item.RegularCapacity</p>
+                    <p class="card-text mb-1"><strong>Capacidad para Motos:</strong> @item.MotorcycleCapacity</p>
+                    <p class="card-text mb-2"><strong>Capacidad Especial:</strong> @item.SpecialCapacity</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="@Url.Action("Edit", "ParkingLot", new { id = item.Id })" class="btn btn-sm btn-primary">
+                            <i class="fas fa-pen"></i> Editar
+                        </a>
+                        @using (Html.BeginForm("DeleteConfirmed", "ParkingLot", new { id = item.Id }, FormMethod.Post, new { onsubmit = "return confirm('¿Seguro que desea eliminar este estacionamiento?');", style = "display:inline;" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script>
+    function filtrarEstacionamientos(valor) {
+        valor = valor.toLowerCase();
+        const rows = document.querySelectorAll("#estacionamientosTable tbody tr");
+        rows.forEach(row => {
+            const texto = row.textContent.toLowerCase();
+            row.style.display = texto.includes(valor) ? "" : "none";
+        });
+        const cards = document.querySelectorAll(".estacionamiento-card");
+        cards.forEach(card => {
+            const texto = card.textContent.toLowerCase();
+            card.style.display = texto.includes(valor) ? "" : "none";
+        });
+    }
+</script>
