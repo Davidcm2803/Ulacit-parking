@@ -1,0 +1,141 @@
+﻿@model List<Ulacit_parking.Models.ParkingLot>
+
+@{
+    ViewBag.Title = "Acceso";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow rounded-4">
+                <div class="card-body">
+                    <h2 class="mb-4 text-start">Entrada/Salida</h2>
+
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar parqueo:</label>
+                        <select id="parkingLotSelect" class="form-select">
+                            @foreach (var p in Model)
+                            {
+                                <option value="@p.Id">@p.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="placa" class="form-label">Placa del vehículo:</label>
+                        <input type="text" id="placa" class="form-control" placeholder="Ingrese la placa">
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <button onclick="registrarIngreso()" class="btn btn-success w-45">Registrar Ingreso</button>
+                        <button onclick="registrarSalida()" class="btn btn-warning w-45">Registrar Salida</button>
+                    </div>
+
+                    <div class="alert text-center fw-bold" id="mensaje" style="display: none;"></div>
+
+                    <div class="text-center my-4">
+                        <h4 class="mb-3">Semáforo de Ingreso</h4>
+                        <div id="semaforo" style="width: 100px; height: 100px; margin: auto; border-radius: 50%; background-color: gray;"></div>
+                        <p id="mensajeSemaforo" class="fw-bold mt-3"></p>
+                    </div>
+
+                    <hr />
+
+                    <div class="text-center">
+                        <h4>Estado actual del parqueo</h4>
+                        <p id="estadoRegular" class="mb-1">Vehículos: </p>
+                        <p id="estadoMoto" class="mb-1">Motos: </p>
+                        <p id="estadoEspecial">Especiales: </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function getSelectedParkingLot() {
+            return $('#parkingLotSelect').val();
+        }
+
+        function actualizarSemaforo() {
+            const placa = $('#placa').val().trim();
+            const parkingLotId = getSelectedParkingLot();
+            if (!placa) {
+                $('#semaforo').css('background-color', 'gray');
+                $('#mensajeSemaforo').text('');
+                return;
+            }
+
+            $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
+                $('#semaforo').css('background-color', data.success ? 'green' : 'red');
+                $('#mensajeSemaforo').text(data.message);
+            });
+        }
+
+        function registrarIngreso() {
+            const placa = $('#placa').val().trim();
+            const parkingLotId = getSelectedParkingLot();
+
+            if (!placa) {
+                alert('Ingrese una placa.');
+                return;
+            }
+
+            $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
+                if (!data.success) {
+                    $('#mensaje').text(data.message).removeClass().addClass('alert alert-danger').show();
+                    $('#semaforo').css('background-color', 'red');
+                    $('#mensajeSemaforo').text(data.message);
+                    return;
+                }
+
+                $.post('/Access/RegistrarIngreso', { placa, parkingLotId }, function (resp) {
+                    $('#mensaje').text(resp.message).removeClass().addClass('alert alert-success').show();
+                    actualizarEstado();
+                    actualizarSemaforo();
+                });
+            });
+        }
+
+        function registrarSalida() {
+            const placa = $('#placa').val().trim();
+            const parkingLotId = getSelectedParkingLot();
+            if (!placa) {
+                alert('Ingrese una placa.');
+                return;
+            }
+
+            $.post('/Access/RegistrarSalida', { placa, parkingLotId }, function (data) {
+                $('#mensaje').text(data.message).removeClass().addClass('alert alert-primary').show();
+                actualizarEstado();
+                actualizarSemaforo();
+            });
+        }
+
+        function actualizarEstado() {
+            const parkingLotId = getSelectedParkingLot();
+            $.post('/Access/ObtenerEstadoParqueo', { parkingLotId }, function (data) {
+                if (data.success) {
+                    $('#estadoRegular').text("Vehículos: " + data.regular);
+                    $('#estadoMoto').text("Motos: " + data.moto);
+                    $('#estadoEspecial').text("Especiales: " + data.especial);
+                }
+            });
+        }
+
+        $('#placa').on('input', actualizarSemaforo);
+        $('#parkingLotSelect').change(function () {
+            actualizarEstado();
+            actualizarSemaforo();
+        });
+
+        $(document).ready(function () {
+            actualizarEstado();
+            actualizarSemaforo();
+        });
+    </script>
+}

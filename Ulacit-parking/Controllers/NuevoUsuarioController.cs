@@ -106,7 +106,7 @@ namespace Ulacit_parking.Controllers
                 return HttpNotFound();
 
             var roles = db.Roles
-                .AsEnumerable() 
+                .AsEnumerable()
                 .Select(r => new SelectListItem
                 {
                     Value = r.Id.ToString(),
@@ -172,12 +172,16 @@ namespace Ulacit_parking.Controllers
                 if (usuario == null)
                     return Json(new { success = false, message = "Usuario no encontrado." });
 
-                // Cargar los vehículos del usuario
                 db.Entry(usuario).Collection(u => u.Vehicles).Load();
 
-                // Eliminar todos los vehículos relacionados
                 foreach (var vehiculo in usuario.Vehicles.ToList())
                 {
+                    var movimientos = db.MovementLogs.Where(m => m.VehicleId == vehiculo.Id).ToList();
+                    if (movimientos.Any())
+                    {
+                        db.MovementLogs.RemoveRange(movimientos);
+                    }
+
                     db.Vehicles.Remove(vehiculo);
                 }
 
@@ -188,7 +192,7 @@ namespace Ulacit_parking.Controllers
             }
             catch (Exception ex)
             {
-                var error = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                var error = ex.InnerException?.Message ?? ex.Message;
                 return Json(new { success = false, message = "Error: " + error });
             }
         }

@@ -1,34 +1,62 @@
-﻿@model List<Ulacit_parking.Models.MovementLog>
+﻿@model List<Ulacit_parking.Models.MovementLogs>
+
 @{
-    ViewBag.Title = "Historial de Parqueo";
+    ViewBag.Title = "Historial";
     Layout = null;
 }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<div class="container py-5">
+    <h2 class="text-center mb-4 text-primary">Historial de Movimientos</h2>
 
-<h2>Historial de Parqueo</h2>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            Este vehículo no tiene movimientos registrados.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow rounded">
+            <table class="table table-striped table-hover align-middle table-bordered">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th scope="col">Fecha y hora</th>
+                        <th scope="col">Acción</th>
+                        <th scope="col">Parqueo</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var movimiento in Model)
+                    {
+                        <tr>
+                            <td>@movimiento.Timestamp.ToString("dd/MM/yyyy hh:mm tt")</td>
+                            <td>
+                                @if (movimiento.EntryExit == "E")
+                                {
+                                    <span class="badge bg-success">Entrada</span>
+                                }
+                                else if (movimiento.EntryExit == "S")
+                                {
+                                    <span class="badge bg-danger">Salida</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@movimiento.EntryExit</span>
+                                }
+                            </td>
+                            <td>
+                                @movimiento.ParkingLot.Name 
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 
-@if (!Model.Any())
-{
-    <p>No hay registros de parqueo para este vehículo.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Acción</th>
-                <th>Fecha y hora</th>
-                <th>Motivo</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var log in Model)
-            {
-                <tr>
-                    <td>@log.Action</td>
-                    <td>@((log.Timestamp != null) ? ((DateTime)log.Timestamp).ToString("g") : "-")</td>
-                    <td>@log.Reason</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Index", "Usuario")" class="btn btn-secondary">
+            Volver a mis vehículos
+        </a>
+    </div>
+</div>

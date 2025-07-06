@@ -16,7 +16,11 @@
 
     <div class="row justify-content-center g-4">
         <div class="col-sm-6 col-md-4">
-            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "NuevoUsuario")'">
+            <div class="card action-card h-100 shadow-sm cursor-pointer" role="button"
+                 onclick="location.href='@Url.Action("Index", "NuevoUsuario")'"
+                 style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                 onmouseenter="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0.5rem 1rem rgba(75, 0, 130, 0.4)';"
+                 onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='';">
                 <div class="card-body text-center">
                     <i class="fas fa-users fa-4x mb-3 text-success"></i>
                     <h5 class="card-title">Usuarios</h5>
@@ -26,7 +30,11 @@
         </div>
 
         <div class="col-sm-6 col-md-4">
-            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "NuevoVehiculo")'">
+            <div class="card action-card h-100 shadow-sm cursor-pointer" role="button"
+                 onclick="location.href='@Url.Action("Index", "NuevoVehiculo")'"
+                 style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                 onmouseenter="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0.5rem 1rem rgba(255, 193, 7, 0.4)';"
+                 onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='';">
                 <div class="card-body text-center">
                     <i class="fas fa-car fa-4x mb-3 text-warning"></i>
                     <h5 class="card-title">Vehículos</h5>
@@ -36,7 +44,11 @@
         </div>
 
         <div class="col-sm-6 col-md-4">
-            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "ParkingLot")'">
+            <div class="card action-card h-100 shadow-sm cursor-pointer" role="button"
+                 onclick="location.href='@Url.Action("Index", "ParkingLot")'"
+                 style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                 onmouseenter="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0.5rem 1rem rgba(13, 110, 253, 0.4)';"
+                 onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='';">
                 <div class="card-body text-center">
                     <i class="fas fa-parking fa-4x mb-3 text-info"></i>
                     <h5 class="card-title">Parqueos</h5>
@@ -46,7 +58,11 @@
         </div>
 
         <div class="col-sm-6 col-md-4">
-            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "MovementLog")'">
+            <div class="card action-card h-100 shadow-sm cursor-pointer" role="button"
+                 onclick="location.href='@Url.Action("Index", "Access")'"
+                 style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                 onmouseenter="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0.5rem 1rem rgba(220, 53, 69, 0.4)';"
+                 onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='';">
                 <div class="card-body text-center">
                     <i class="fas fa-door-open fa-4x mb-3 text-danger"></i>
                     <h5 class="card-title">Entrada/Salida</h5>
@@ -56,7 +72,11 @@
         </div>
 
         <div class="col-sm-6 col-md-4">
-            <div class="card action-card h-100" role="button" onclick="location.href='@Url.Action("Index", "Bitacora")'">
+            <div class="card action-card h-100 shadow-sm cursor-pointer" role="button"
+                 onclick="location.href='@Url.Action("Index", "MovementLog")'"
+                 style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                 onmouseenter="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0.5rem 1rem rgba(108, 117, 125, 0.4)';"
+                 onmouseleave="this.style.transform='scale(1)'; this.style.boxShadow='';">
                 <div class="card-body text-center">
                     <i class="fas fa-book fa-4x mb-3 text-secondary"></i>
                     <h5 class="card-title">Bitácora</h5>

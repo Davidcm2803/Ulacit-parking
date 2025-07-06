@@ -13,6 +13,7 @@ public class MovementLogs
     public string EntryExit { get; set; }
     public DateTime Timestamp { get; set; }
     public int? ParkingLotId { get; set; }
+
     public virtual Vehicle Vehicle { get; set; }
     public virtual ParkingLot ParkingLot { get; set; }
 }

@@ -169,7 +169,6 @@ namespace Ulacit_parking.Controllers
 
 
 
-
         [HttpPost]
         public JsonResult EliminarVehiculo(int id)
         {
@@ -178,6 +177,12 @@ namespace Ulacit_parking.Controllers
                 var vehiculo = db.Vehicles.Find(id);
                 if (vehiculo == null)
                     return Json(new { success = false, message = "Vehículo no encontrado." });
+
+                var movimientos = db.MovementLogs.Where(m => m.VehicleId == id).ToList();
+                if (movimientos.Any())
+                {
+                    db.MovementLogs.RemoveRange(movimientos);
+                }
 
                 db.Vehicles.Remove(vehiculo);
                 db.SaveChanges();

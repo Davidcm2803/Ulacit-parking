@@ -1,109 +1,63 @@
-﻿@model List<Ulacit_parking.Models.ViewModels.VehicleViewModel>
+﻿@model  List<Ulacit_parking.Models.ViewModels.VehicleViewModel>
 
 @{
     ViewBag.Title = "Mis Vehículos";
     Layout = null;
 }
-<style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f3f4f6;
-        padding: 30px;
-        margin: 0;
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container py-5">
+    <h2 class="text-center mb-4 text-primary">Mis Vehículos</h2>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center">
+            No tienes vehículos registrados.
+        </div>
     }
-
-    h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 30px;
+    else
+    {
+        <div class="table-responsive shadow rounded">
+            <table class="table table-hover align-middle table-bordered mb-0">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th scope="col">Marca</th>
+                        <th scope="col">Color</th>
+                        <th scope="col">Placa</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">¿Espacio especial?</th>
+                        <th scope="col">Historial</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var vehiculo in Model)
+                    {
+                        <tr>
+                            <td>@vehiculo.Brand</td>
+                            <td>@vehiculo.Color</td>
+                            <td>@vehiculo.LicensePlate</td>
+                            <td>@vehiculo.VehicleType</td>
+                            <td>
+                                @if (vehiculo.UsesSpecialSpace)
+                                {
+                                    <span class="badge bg-success">Sí</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Historial", "Usuario", new { id = vehiculo.Id })"
+                                   class="btn btn-sm btn-primary">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
-
-    .table {
-        width: 90%;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-
-        .table thead {
-            background-color: #1f2937;
-            color: white;
-        }
-
-            .table thead th {
-                padding: 15px;
-                text-align: center;
-            }
-
-        .table tbody td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e5e7eb;
-            color: #333;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f9fafb;
-        }
-
-    .btn-info {
-        background-color: #3b82f6;
-        border: none;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: background-color 0.2s ease-in-out;
-    }
-
-        .btn-info:hover {
-            background-color: #2563eb;
-            color: white;
-        }
-
-    p {
-        text-align: center;
-        font-size: 18px;
-        color: #6b7280;
-    }
-</style>
-
-<h2>Mis Vehículos</h2>
-
-@if (Model.Count == 0)
-{
-    <p>No tienes vehículos registrados.</p>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Marca</th>
-                <th>Color</th>
-                <th>Placa</th>
-                <th>Tipo</th>
-                <th>¿Espacio especial?</th>
-                <th>Historial</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var vehiculo in Model)
-            {
-                <tr>
-                    <td>@vehiculo.Brand</td>
-                    <td>@vehiculo.Color</td>
-                    <td>@vehiculo.LicensePlate</td>
-                    <td>@vehiculo.VehicleType</td>
-                    <td>@(vehiculo.UsesSpecialSpace ? "Sí" : "No")</td>
-                    <td>
-                        <a href="@Url.Action("Historial", "Usuarios", new { id = vehiculo.Id })" class="btn btn-sm btn-info">Ver</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
+</div>

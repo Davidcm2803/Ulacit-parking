@@ -6,101 +6,79 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Mi App</title>
+    <title>@ViewData["Title"] - Ulacit Parking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"  />
 
-    <link href="~/Content/site.css" rel="stylesheet" />
-
-
+    <link href="~/Content/Site.css" rel="stylesheet" />
 </head>
 <body>
 
     <div id="wrapper">
-
-        <!-- Sidebar -->
-        <nav id="sidebar" class="bg-dark text-white">
-            <div class="sidebar-header p-3 text-center border-bottom">
-                <a href="@Url.Action("Index", "AdminInicio")" class="text-white text-decoration-none fs-4 fw-bold">Ulacit Parking</a>
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <a href="@Url.Action("Index", "AdminInicio")" class="text-white text-decoration-none">ULACIT Parking</a>
             </div>
-            <ul class="list-unstyled ps-0 mt-3">
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "AdminInicio")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-home me-2"></i> <span>Home</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "NuevoUsuario")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-users me-2"></i> <span>Usuarios</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "NuevoVehiculo")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-car me-2"></i> <span>Vehículos</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "ParkingLot")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-parking me-2"></i> <span>Parqueos</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "MovementLog")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-sign-in-alt me-2"></i> <span>Entrada/Salida</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="@Url.Action("Index", "Bitacora")" class="btn btn-outline-light w-100 mb-2">
-                        <i class="fas fa-book me-2"></i> <span>Bitácora</span>
-                    </a>
-                </li>
+            <ul>
+                <li><a href="@Url.Action("Index", "AdminInicio")"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="@Url.Action("Index", "NuevoUsuario")"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="@Url.Action("Index", "NuevoVehiculo")"><i class="fas fa-car"></i> Vehículos</a></li>
+                <li><a href="@Url.Action("Index", "ParkingLot")"><i class="fas fa-parking"></i> Parqueos</a></li>
+                <li><a href="@Url.Action("Index", "Access")"><i class="fas fa-sign-in-alt"></i> Entrada/Salida</a></li>
+                <li><a href="@Url.Action("Index", "MovementLog")"><i class="fas fa-book"></i> Bitácora</a></li>
             </ul>
         </nav>
 
-        <!-- Page Content -->
-        <div id="page-content-wrapper" class="flex-grow-1">
+        <div id="page-content-wrapper">
+            <nav class="navbar shadow-sm">
+                <button class="toggle-btn" id="btnToggleSidebar" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
 
-            <!-- Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <div class="container-fluid">
-
-                    <!--<a class="navbar-brand ms-3" href="#"></a>-->
-
-                    <div class="collapse navbar-collapse justify-content-end">
-                        <ul class="navbar-nav me-3">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="fas fa-user-circle"></i> Cuenta</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("Logout", "Admin")"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="navbar-links">
+                    <a href="#"><i class="fas fa-user-circle"></i> Cuenta</a>
+                    <a href="@Url.Action("Logout", "Admin")"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
                 </div>
             </nav>
 
-            <main class="p-4">
+            <main>
                 @RenderBody()
             </main>
         </div>
-
     </div>
-    @RenderSection("Scripts", required: false)
+
+    <div id="overlay"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!--<script>
-        document.getElementById('sidebarToggle').addEventListener('click', function () {
-            const wrapper = document.getElementById('wrapper');
-            wrapper.classList.toggle('sidebar-collapsed');
-            if (wrapper.classList.contains('sidebar-collapsed')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
+    <script>
+        const wrapper = document.getElementById('wrapper');
+        const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+        const overlay = document.getElementById('overlay');
+
+        btnToggleSidebar.addEventListener('click', () => {
+            wrapper.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('active');
         });
 
-    </script>-->
+        overlay.addEventListener('click', () => {
+            wrapper.classList.add('sidebar-hidden');
+            overlay.classList.remove('active');
+        });
+
+        function checkWindowSize() {
+            if (window.innerWidth <= 991) {
+                wrapper.classList.add('sidebar-hidden');
+            } else {
+                wrapper.classList.remove('sidebar-hidden');
+                overlay.classList.remove('active');
+            }
+        }
+
+        window.addEventListener('resize', checkWindowSize);
+        window.addEventListener('load', checkWindowSize);
+    </script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

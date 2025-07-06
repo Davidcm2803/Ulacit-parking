@@ -2,35 +2,38 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
 }
 
 body {
     display: flex;
     justify-content: center;
-    align-items: stretch;
-    height: 100vh;
-    width: 100vw;
-    background-color: #fff;
-    overflow: hidden;
+    align-items: center;
 }
 
 .container {
     display: flex;
-    flex-direction: row; /* Coloca la imagen a la derecha y el formulario a la izquierda */
+    flex-direction: row;
     width: 100%;
     height: 100vh;
 }
 
 .login-box {
     width: 50%;
-    padding: 2rem;
+    padding: 3rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: #fff;
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.08);
 }
 
 .logo {
@@ -39,38 +42,27 @@ body {
 }
 
 .logo-img {
-    width: 200px;
+    width: 180px;
     height: auto;
-    margin-bottom: 1rem;
 }
-
-.logo h1 {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.orange-text {
-    color: orange; /* Color morado para la palabra "Park" */
-}
-
-
 
 form {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 340px;
+    gap: 1.2rem;
 }
 
 label {
-    font-size: 14px;
+    font-weight: bold;
     margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
 }
 
 .input-group {
     position: relative;
-    margin-bottom: 1rem;
-    width: 100%;
 }
 
     .input-group i {
@@ -79,10 +71,9 @@ label {
         top: 50%;
         transform: translateY(-50%);
         background-color: purple;
-        color: #fff;
+        color: white;
         padding: 8px;
-        border-radius: 5px;
-        font-size: 14px;
+        border-radius: 0 5px 5px 0;
         width: 40px;
         height: 100%;
         display: flex;
@@ -91,93 +82,58 @@ label {
     }
 
 input {
-    padding: 10px 50px 10px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
     width: 100%;
+    padding: 10px 45px 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border 0.2s ease;
 }
+
+    input:focus {
+        outline: none;
+        border-color: purple;
+    }
 
 .actions {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    width: 100%;
+    gap: 10px;
+    align-items: flex-end;
 }
 
 .forgot-password {
     font-size: 12px;
     color: purple;
     text-decoration: none;
-    margin-bottom: 10px;
-    align-self: flex-end;
 }
 
-.btn-login,
-.btn-signup {
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    width: 100%;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
 
 .btn-login {
+    width: 100%;
+    padding: 12px;
     background-color: purple;
-    color: #fff;
+    color: white;
+    font-weight: bold;
     border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
     .btn-login:hover {
-        background-color: #fff;
+        background-color: white;
         color: purple;
         border: 2px solid purple;
     }
 
-.signup {
-    text-align: center;
-    margin-top: 1rem;
-    width: 49%;
-}
-
-.btn-signup {
-    background-color: transparent;
-    border: 2px solid purple;
-    color: purple;
-}
-
-    .btn-signup:hover {
-        background-color: purple;
-        color: #fff;
-    }
-
-.divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 1rem 0;
-}
-
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid purple;
-    }
-
-    .divider:not(:empty)::before {
-        margin-right: 10px;
-    }
-
-    .divider:not(:empty)::after {
-        margin-left: 10px;
-    }
-
+/* Imagen */
 .image-box {
     width: 50%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -185,22 +141,47 @@ input {
 
 .parking-img {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     object-fit: cover;
 }
 
-.circle {
-    background-color: red;
-    text-align: center;
-    width: 150px;
-    height: 150px;
-    border-radius: 80%;
-}
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
 
-.black-box {
-    background-color: black;
-    width: 160px;
-    align-items: center;
-    justify-content: center;
-    height: 180px;
+    .image-box {
+        display: none !important;
+    }
+
+    .login-box {
+        width: 90%;
+        padding: 2rem;
+        border-radius: 10px;
+    }
+
+    form {
+        max-width: 100%;
+    }
+
+    input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .input-group i {
+        width: 35px;
+        font-size: 13px;
+    }
+
+    .btn-login {
+        font-size: 14px;
+    }
+
+    .forgot-password {
+        font-size: 12px;
+    }
 }

@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using Ulacit_parking.Models;
 using Ulacit_parking.Models.ViewModels;
+using System.Data.Entity;
 
 namespace Ulacit_parking.Controllers
 {
@@ -33,16 +34,16 @@ namespace Ulacit_parking.Controllers
 
             return View(vehiculos);
         }
-        //no sirve historial 
-        //public ActionResult Historial(int id)
-        //{
-            //var historial = db.MovementLogs
-               // .Where(m => m.VehicleId == id)
-                //.OrderByDescending(m => m.Timestamp)
-                //.ToList();
+        public ActionResult Historial(int id)
+        {
+            var historial = db.MovementLogs
+               .Include(m => m.ParkingLot)
+               .Where(m => m.VehicleId == id)
+               .OrderByDescending(m => m.Timestamp)
+               .ToList();
 
-            //ViewBag.VehicleId = id;
-            //return View(historial);
-        //}
+            ViewBag.VehicleId = id;
+            return View(historial);
+        }
     }
 }
