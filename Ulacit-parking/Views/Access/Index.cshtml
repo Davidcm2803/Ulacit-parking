@@ -1,7 +1,7 @@
 ﻿@model List<Ulacit_parking.Models.ParkingLot>
 
 @{
-    ViewBag.Title = "Acceso";
+    ViewBag.Title = "Acceso"; // Título de la pestaña
 }
 
 <div class="container py-5">
@@ -11,6 +11,7 @@
                 <div class="card-body">
                     <h2 class="mb-4 text-start">Entrada/Salida</h2>
 
+                    <!-- Dropdown para seleccionar el parqueo -->
                     <div class="mb-3">
                         <label class="form-label">Seleccionar parqueo:</label>
                         <select id="parkingLotSelect" class="form-select">
@@ -21,18 +22,22 @@
                         </select>
                     </div>
 
+                    <!-- Input de placa -->
                     <div class="mb-3">
                         <label for="placa" class="form-label">Placa del vehículo:</label>
                         <input type="text" id="placa" class="form-control" placeholder="Ingrese la placa">
                     </div>
 
+                    <!-- Botones de acción: ingreso y salida -->
                     <div class="d-flex justify-content-between mb-4">
                         <button onclick="registrarIngreso()" class="btn btn-success w-45">Registrar Ingreso</button>
                         <button onclick="registrarSalida()" class="btn btn-warning w-45">Registrar Salida</button>
                     </div>
 
+                    <!-- Contenedor de mensajes de validación o éxito -->
                     <div class="alert text-center fw-bold" id="mensaje" style="display: none;"></div>
 
+                    <!-- Sección visual del semáforo de ingreso -->
                     <div class="text-center my-4">
                         <h4 class="mb-3">Semáforo de Ingreso</h4>
                         <div id="semaforo" style="width: 100px; height: 100px; margin: auto; border-radius: 50%; background-color: gray;"></div>
@@ -41,6 +46,7 @@
 
                     <hr />
 
+                    <!-- Sección para mostrar el estado actual del parqueo -->
                     <div class="text-center">
                         <h4>Estado actual del parqueo</h4>
                         <p id="estadoRegular" class="mb-1">Vehículos: </p>
@@ -57,25 +63,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        // Obtener el ID del parqueo seleccionado
         function getSelectedParkingLot() {
             return $('#parkingLotSelect').val();
         }
 
+        // Verifica si la placa puede ingresar, y actualiza el semáforo
         function actualizarSemaforo() {
             const placa = $('#placa').val().trim();
             const parkingLotId = getSelectedParkingLot();
+
             if (!placa) {
                 $('#semaforo').css('background-color', 'gray');
                 $('#mensajeSemaforo').text('');
                 return;
             }
 
+            // Llama al controlador para validar ingreso
             $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
                 $('#semaforo').css('background-color', data.success ? 'green' : 'red');
                 $('#mensajeSemaforo').text(data.message);
             });
         }
 
+        // Acción para registrar ingreso
         function registrarIngreso() {
             const placa = $('#placa').val().trim();
             const parkingLotId = getSelectedParkingLot();
@@ -85,39 +96,45 @@
                 return;
             }
 
+            // Primero verifica si puede ingresar (espacio, ya está dentro, etc)
             $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
                 if (!data.success) {
-                    $('#mensaje').text(data.message).removeClass().addClass('alert alert-danger').show();
+                    $('#mensaje').html(`<span>${data.message}</span>`).removeClass().addClass('alert alert-danger').show();
                     $('#semaforo').css('background-color', 'red');
                     $('#mensajeSemaforo').text(data.message);
                     return;
                 }
 
+                // Si se autoriza, procede con el ingreso
                 $.post('/Access/RegistrarIngreso', { placa, parkingLotId }, function (resp) {
-                    $('#mensaje').text(resp.message).removeClass().addClass('alert alert-success').show();
+                    $('#mensaje').html(`<span>${resp.message}</span>`).removeClass().addClass('alert alert-success').show();
                     actualizarEstado();
                     actualizarSemaforo();
                 });
             });
         }
 
+        // Acción para registrar salida
         function registrarSalida() {
             const placa = $('#placa').val().trim();
             const parkingLotId = getSelectedParkingLot();
+
             if (!placa) {
                 alert('Ingrese una placa.');
                 return;
             }
 
             $.post('/Access/RegistrarSalida', { placa, parkingLotId }, function (data) {
-                $('#mensaje').text(data.message).removeClass().addClass('alert alert-primary').show();
+                $('#mensaje').html(`<span>${data.message}</span>`).removeClass().addClass('alert alert-primary').show();
                 actualizarEstado();
                 actualizarSemaforo();
             });
         }
 
+        // Actualiza los contadores de ocupación del parqueo
         function actualizarEstado() {
             const parkingLotId = getSelectedParkingLot();
+
             $.post('/Access/ObtenerEstadoParqueo', { parkingLotId }, function (data) {
                 if (data.success) {
                     $('#estadoRegular').text("Vehículos: " + data.regular);
@@ -127,12 +144,14 @@
             });
         }
 
-        $('#placa').on('input', actualizarSemaforo);
+        // Eventos automáticos
+        $('#placa').on('input', actualizarSemaforo); // Semáforo en vivo al escribir
         $('#parkingLotSelect').change(function () {
-            actualizarEstado();
-            actualizarSemaforo();
+            actualizarEstado();     // Cambiar parqueo > cambia estado
+            actualizarSemaforo();   // y cambia semáforo
         });
 
+        // Inicializa valores al cargar la página
         $(document).ready(function () {
             actualizarEstado();
             actualizarSemaforo();

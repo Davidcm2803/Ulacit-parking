@@ -219,6 +219,8 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\img\parking.jpg" />
+    <Content Include="Content\img\ulacitlog.png" />
     <Content Include="Content\lib\bootstrap\dist\css\bootstrap-grid.css" />
     <Content Include="Content\lib\bootstrap\dist\css\bootstrap-grid.min.css" />
     <Content Include="Content\lib\bootstrap\dist\css\bootstrap-grid.rtl.css" />
