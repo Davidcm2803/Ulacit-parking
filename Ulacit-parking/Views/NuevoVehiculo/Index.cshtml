@@ -94,12 +94,13 @@
             row.style.display = texto.includes(valor) ? "" : "none";
         });
 
-        const cards = document.querySelectorAll(".vehiculo-card");
+        const cards = document.querySelectorAll(".vehiculosCards");
         cards.forEach(card => {
             const texto = card.textContent.toLowerCase();
             card.style.display = texto.includes(valor) ? "" : "none";
         });
     }
+
 
     function eliminarVehiculo(id) {
         if (!confirm("¿Está seguro que desea eliminar este vehículo?")) return;
