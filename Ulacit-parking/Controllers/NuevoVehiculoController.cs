@@ -84,6 +84,7 @@ namespace Ulacit_parking.Controllers
                     VehicleType = newVehicle.VehicleType,
                     OwnerId = newVehicle.OwnerId,
                     UsesSpecialSpace = newVehicle.UsesSpecialSpace,
+                    FirstLogin = "0",
                 };
 
                 db.Vehicles.Add(vehiculo);

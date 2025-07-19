@@ -63,6 +63,11 @@ namespace Ulacit_parking.Controllers
                 ModelState.AddModelError("SpecialCapacity", "La capacidad especial no puede ser negativa.");
             }
 
+            if((model.RegularCapacity + model.MotorcycleCapacity + model.SpecialCapacity) <= 0)
+            {
+                ModelState.AddModelError("RegularCapacity", "Al menos una de las capacidades debe ser 1 o mas.");
+            }
+
             if (ModelState.IsValid)
             {
                 var parkingLot = new ParkingLot
@@ -112,6 +117,9 @@ namespace Ulacit_parking.Controllers
 
                 if (regularCapacity < 0 || motorcycleCapacity < 0 || specialCapacity < 0)
                     return Json(new { success = false, message = "Las capacidades no pueden ser negativas." });
+
+                if ((regularCapacity + motorcycleCapacity + specialCapacity) <= 0)
+                    return Json(new { success = false, message = "Al menos una de las capacidades debe ser 1 o mas." });
 
                 bool nombreDuplicado = db.ParkingLots
                     .Any(p => p.Id != id && p.Name.ToLower().Trim() == name.ToLower().Trim());

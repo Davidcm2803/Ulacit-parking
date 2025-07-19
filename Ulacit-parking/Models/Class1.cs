@@ -52,6 +52,8 @@ namespace Ulacit_parking.Models
         public int OwnerId { get; set; }
         public bool? UsesSpecialSpace { get; set; }
 
+        public string FirstLogin { get; set; }
+
         public virtual User Owner { get; set; }
         public virtual ICollection<MovementLogs> MovementLogs { get; set; }
     }
