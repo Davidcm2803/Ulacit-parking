@@ -14,7 +14,6 @@ namespace Ulacit_parking.Models.ViewModels
         [NotMapped]
         public string OwnerName { get; set; }
         public bool UsesSpecialSpace { get; set; }
-        public string FirstLogin { get; set; }
 
         public List<UserViewModel> Usuarios { get; set; }
     }

@@ -8,6 +8,7 @@ using Ulacit_parking.Models.ViewModels;
 
 namespace Ulacit_parking.Controllers
 {
+    [AuthorizeRole(1)]
     public class NuevoUsuarioController : Controller
     {
         private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();

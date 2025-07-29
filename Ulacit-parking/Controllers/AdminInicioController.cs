@@ -2,6 +2,7 @@
 
 namespace Ulacit_parking.Controllers
 {
+    [AuthorizeRole(1)]
     public class AdminInicioController : Controller
     {
         // GET: AdminInicio
@@ -9,5 +10,6 @@ namespace Ulacit_parking.Controllers
         {
             return View();
         }
+
     }
 }

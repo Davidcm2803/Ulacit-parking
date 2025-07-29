@@ -8,6 +8,7 @@ using Ulacit_parking.Models.ViewModels;
 
 namespace Ulacit_parking.Controllers
 {
+    [AuthorizeRole(1)]
     public class NuevoVehiculoController : Controller
     {
         private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
@@ -76,6 +77,14 @@ namespace Ulacit_parking.Controllers
                     return View(newVehicle);
                 }
 
+                // Eliminar de TemporaryVehicles si existe la placa (pase único)
+                var tempVehiculo = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == newVehicle.LicensePlate);
+                if (tempVehiculo != null)
+                {
+                    db.TemporaryVehicles.Remove(tempVehiculo);
+                    db.SaveChanges();
+                }
+
                 var vehiculo = new Vehicle
                 {
                     Brand = newVehicle.Brand,
@@ -84,7 +93,6 @@ namespace Ulacit_parking.Controllers
                     VehicleType = newVehicle.VehicleType,
                     OwnerId = newVehicle.OwnerId,
                     UsesSpecialSpace = newVehicle.UsesSpecialSpace,
-                    FirstLogin = "0",
                 };
 
                 db.Vehicles.Add(vehiculo);
@@ -99,8 +107,6 @@ namespace Ulacit_parking.Controllers
                 return RedirectToAction("Index");
             }
         }
-
-
 
         [HttpGet]
         public ActionResult Edit(int id)
@@ -121,7 +127,6 @@ namespace Ulacit_parking.Controllers
 
             ViewBag.Usuarios = usuarios;
 
-
             var model = new VehicleViewModel
             {
                 Id = vehiculo.Id,
@@ -136,7 +141,6 @@ namespace Ulacit_parking.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public JsonResult EditarVehiculo(int id, string brand, string color, string licensePlate, string vehicleType, int ownerId, bool usesSpecialSpace)
         {
@@ -146,10 +150,8 @@ namespace Ulacit_parking.Controllers
                 if (vehiculo == null)
                     return Json(new { success = false, message = "Vehiculo no encontrado." });
 
-
                 if (db.Vehicles.Any(u => u.LicensePlate == licensePlate && u.Id != id))
                     return Json(new { success = false, message = "Placa ya registrada." });
-
 
                 vehiculo.Brand = brand;
                 vehiculo.Color = color;
@@ -168,8 +170,6 @@ namespace Ulacit_parking.Controllers
             }
         }
 
-
-
         [HttpPost]
         public JsonResult EliminarVehiculo(int id)
         {
@@ -185,7 +185,12 @@ namespace Ulacit_parking.Controllers
                     db.MovementLogs.RemoveRange(movimientos);
                 }
 
+                string placa = vehiculo.LicensePlate;
                 db.Vehicles.Remove(vehiculo);
+                db.SaveChanges();
+
+                // Permitir usar pase único nuevamente eliminando registros temporales con esa placa
+                db.TemporaryVehicles.RemoveRange(db.TemporaryVehicles.Where(t => t.LicensePlate == placa));
                 db.SaveChanges();
 
                 return Json(new { success = true, message = "Vehículo eliminado correctamente." });

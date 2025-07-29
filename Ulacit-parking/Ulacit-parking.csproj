@@ -185,6 +185,7 @@
     <Compile Include="Controllers\AccessController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\AdminInicioController.cs" />
+    <Compile Include="Controllers\AuthorizeRoleAttribute.cs" />
     <Compile Include="Controllers\MovementLogController.cs" />
     <Compile Include="Controllers\NuevoUsuarioController.cs" />
     <Compile Include="Controllers\NuevoVehiculoController.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="Models\ViewModels\ParkingLotViewModel.cs" />
     <Compile Include="Models\ViewModels\ParkingViewModel.cs" />
     <Compile Include="Models\ViewModels\RolesViewModel.cs" />
+    <Compile Include="Models\ViewModels\TemporaryVehiclesViewModel.cs" />
     <Compile Include="Models\ViewModels\UserViewModel.cs" />
     <Compile Include="Models\ViewModels\VehicleViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -329,6 +331,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\temporaryvehicles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

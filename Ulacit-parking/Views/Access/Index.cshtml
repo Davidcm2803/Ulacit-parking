@@ -1,7 +1,16 @@
-﻿@model List<Ulacit_parking.Models.ParkingLot>
+﻿@{
+    var user = Session["AdminLogged"] as Ulacit_parking.Models.User
+            ?? Session["UserLogged"] as Ulacit_parking.Models.User;
+
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+}
+
+@model List<Ulacit_parking.Models.ParkingLot>
 
 @{
-    ViewBag.Title = "Acceso"; // Título de la pestaña
+    ViewBag.Title = "Acceso"; 
 }
 
 <div class="container py-5">

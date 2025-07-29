@@ -6,6 +6,7 @@ using System.Data.Entity;
 
 namespace Ulacit_parking.Controllers
 {
+    [AuthorizeRole(1, 3)]
     public class UsuarioController : Controller
     {
         private ParkingDatabaseContext db = new ParkingDatabaseContext();

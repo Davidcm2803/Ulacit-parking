@@ -36,10 +36,34 @@
             <nav class="navbar shadow-sm">
                 <button class="toggle-btn" id="btnToggleSidebar" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
 
-                <div class="navbar-links">
-                    <a href="#"><i class="fas fa-user-circle"></i> Cuenta</a>
-                    <a href="@Url.Action("Logout", "Admin")"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                <div class="navbar-links d-flex align-items-center">
+                    @{
+                        var usuario = Session["AdminLogged"] as Ulacit_parking.Models.User
+                                   ?? Session["UserLogged"] as Ulacit_parking.Models.User;
+                    }
+
+                    @if (usuario != null)
+                    {
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-black dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                <span class="me-2">@usuario.Name</span>
+                                <i class="fas fa-user-circle"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("CambiarPassword", "Admin")"><i class="fas fa-lock me-2"></i>Cambiar contraseña</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Admin")"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "Admin")" class="btn btn-sm btn-outline-light">Iniciar sesión</a>
+                    }
                 </div>
+
+
             </nav>
 
             <main>

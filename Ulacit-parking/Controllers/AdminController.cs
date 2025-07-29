@@ -51,9 +51,11 @@ namespace Ulacit_parking.Controllers
                 switch (user.RoleId)
                 {
                     case 1:
-                    case 2:
                         Session["AdminLogged"] = user;
                         return RedirectToAction("Index", "AdminInicio");
+                    case 2:
+                        Session["AdminLogged"] = user;
+                        return RedirectToAction("Index", "Access");
                     case 3:
                         Session["UserLogged"] = user;
                         return RedirectToAction("Index", "Usuario");
@@ -138,6 +140,17 @@ namespace Ulacit_parking.Controllers
                     return RedirectToAction("Login");
             }
         }
+
+        [HttpGet]
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            Session.Abandon();
+
+            TempData["SuccessMessage"] = "Sesión cerrada correctamente.";
+            return RedirectToAction("Login", "Admin");
+        }
+
     }
 }
 
