@@ -22,14 +22,29 @@
             <div class="sidebar-header">
                 <a href="@Url.Action("Index", "AdminInicio")" class="text-white text-decoration-none">ULACIT Parking</a>
             </div>
+            @{
+                var usuarioLayout = Session["AdminLogged"] as Ulacit_parking.Models.User
+                           ?? Session["UserLogged"] as Ulacit_parking.Models.User;
+
+                var rol = usuarioLayout != null ? usuarioLayout.RoleId : 0;
+
+            }
             <ul>
-                <li><a href="@Url.Action("Index", "AdminInicio")"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="@Url.Action("Index", "NuevoUsuario")"><i class="fas fa-users"></i> Usuarios</a></li>
-                <li><a href="@Url.Action("Index", "NuevoVehiculo")"><i class="fas fa-car"></i> Vehículos</a></li>
-                <li><a href="@Url.Action("Index", "ParkingLot")"><i class="fas fa-parking"></i> Parqueos</a></li>
-                <li><a href="@Url.Action("Index", "Access")"><i class="fas fa-sign-in-alt"></i> Entrada/Salida</a></li>
-                <li><a href="@Url.Action("Index", "MovementLog")"><i class="fas fa-book"></i> Bitácora</a></li>
+                @if (rol == 1)
+                {
+                    <li><a href="@Url.Action("Index", "AdminInicio")"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="@Url.Action("Index", "NuevoUsuario")"><i class="fas fa-users"></i> Usuarios</a></li>
+                    <li><a href="@Url.Action("Index", "NuevoVehiculo")"><i class="fas fa-car"></i> Vehículos</a></li>
+                    <li><a href="@Url.Action("Index", "ParkingLot")"><i class="fas fa-parking"></i> Parqueos</a></li>
+                    <li><a href="@Url.Action("Index", "Access")"><i class="fas fa-sign-in-alt"></i> Entrada/Salida</a></li>
+                    <li><a href="@Url.Action("Index", "MovementLog")"><i class="fas fa-book"></i> Bitácora</a></li>
+                }
+                else if (rol == 2)
+                {
+                    <li><a href="@Url.Action("Index", "Access")"><i class="fas fa-sign-in-alt"></i> Entrada/Salida</a></li>
+                }
             </ul>
+
         </nav>
 
         <div id="page-content-wrapper">

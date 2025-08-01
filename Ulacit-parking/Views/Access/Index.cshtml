@@ -1,16 +1,15 @@
-﻿@{
+﻿@model List<Ulacit_parking.Models.ParkingLot>
+@{
     var user = Session["AdminLogged"] as Ulacit_parking.Models.User
             ?? Session["UserLogged"] as Ulacit_parking.Models.User;
 
-    {
-        Layout = "~/Views/Shared/_Layout.cshtml";
-    }
+    var isGuard = user != null && user.RoleId == 2;
+    var random = new Random();
+    var parqueoAsignado = isGuard && Model.Any() ? Model[random.Next(Model.Count)].Name : null;
 }
 
-@model List<Ulacit_parking.Models.ParkingLot>
-
 @{
-    ViewBag.Title = "Acceso"; 
+    ViewBag.Title = "Acceso";
 }
 
 <div class="container py-5">
@@ -67,6 +66,13 @@
         </div>
     </div>
 </div>
+
+@if (isGuard && !string.IsNullOrEmpty(parqueoAsignado))
+{
+    <script>
+        alert("¡Atención! Hoy debes cuidar el parqueo: @parqueoAsignado");
+    </script>
+}
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

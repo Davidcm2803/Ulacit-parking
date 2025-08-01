@@ -95,6 +95,24 @@ input {
         border-color: purple;
     }
 
+
+.input-group i {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: purple;
+    color: white;
+    padding: 8px;
+    border-radius: 0 5px 5px 0;
+    width: 40px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
 .actions {
     display: flex;
     flex-direction: column;

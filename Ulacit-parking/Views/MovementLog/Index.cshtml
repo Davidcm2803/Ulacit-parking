@@ -1,6 +1,5 @@
 ﻿@model List<Ulacit_parking.Models.ViewModels.MovementLogsViewModel>
 
-
 @{
     ViewBag.Title = "Bitácora de Movimientos";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,6 +8,8 @@
 @Html.AntiForgeryToken()
 
 <div class="container mt-5">
+
+    <!-- Título y selector -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
         <h2 class="m-0">Entradas y salidas</h2>
 
@@ -19,11 +20,12 @@
         </select>
     </div>
 
+    <!-- Filtro de búsqueda -->
     <div class="mb-3">
         <input type="text" class="form-control" placeholder="Buscar por placa, marca o parqueo..." onkeyup="filtrarMovimientos(this.value)" id="filtroInput" />
     </div>
 
-    <!-- Tabla para escritorio -->
+    <!-- TABLA (Escritorio) -->
     <div class="table-responsive d-none d-md-block">
         <table class="table table-bordered table-hover" id="movimientosTable">
             <thead class="table-dark">
@@ -39,14 +41,12 @@
             <tbody>
                 @foreach (var m in Model)
                 {
-                    // Defino tipos para filtrar fácilmente
                     var tieneRegistrado = m.Vehicle != null;
                     var tieneTemporal = m.TemporaryVehicle != null;
 
-
                     <tr class="movimiento-row"
-                        data-registrado="@(tieneRegistrado.ToString().ToLower())"
-                        data-temporal="@(tieneTemporal.ToString().ToLower())">
+                        data-registrado="@tieneRegistrado.ToString().ToLower()"
+                        data-temporal="@tieneTemporal.ToString().ToLower()">
                         <td>@(tieneRegistrado ? m.Vehicle.Brand : "N/D")</td>
                         <td>@(tieneRegistrado ? m.Vehicle.LicensePlate : "N/D")</td>
                         <td>@(m.ParkingLot != null ? m.ParkingLot.Name : "N/D")</td>
@@ -58,20 +58,22 @@
                         <td>
                             @if (m.TemporaryVehicle != null)
                             {
-                                <ul>
-                                    <li>
-                                        @m.TemporaryVehicle.LicensePlate <br />
-                                        Entrada: @(m.TemporaryVehicle.EntryTime != null ? m.TemporaryVehicle.EntryTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")<br />
-                                        Salida: @(m.TemporaryVehicle.ExitTime != null ? m.TemporaryVehicle.ExitTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")
-                                    </li>
-                                </ul>
+                                <p class="mb-0"><strong>Placa:</strong> @m.TemporaryVehicle.LicensePlate</p>
+
+                                if (m.EntryExit == "E")
+                                {
+                                    <p class="mb-0"><strong>Entrada:</strong> @(m.TemporaryVehicle.EntryTime != null ? m.TemporaryVehicle.EntryTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</p>
+                                }
+                                else if (m.EntryExit == "S")
+                                {
+                                    <p class="mb-0"><strong>Salida:</strong> @(m.TemporaryVehicle.ExitTime != null ? m.TemporaryVehicle.ExitTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</p>
+                                }
                             }
                             else
                             {
                                 <span>Ninguno</span>
                             }
                         </td>
-
                         <td>@m.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
                     </tr>
                 }
@@ -79,17 +81,16 @@
         </table>
     </div>
 
-    <!-- Tarjetas para móvil -->
+    <!-- TARJETAS (Móvil) -->
     <div class="d-md-none" id="movimientosCards">
         @foreach (var m in Model)
         {
             var tieneRegistrado = m.Vehicle != null;
             var tieneTemporal = m.TemporaryVehicle != null;
 
-
             <div class="card mb-3 movimiento-card"
-                 data-registrado="@(tieneRegistrado.ToString().ToLower())"
-                 data-temporal="@(tieneTemporal.ToString().ToLower())">
+                 data-registrado="@tieneRegistrado.ToString().ToLower()"
+                 data-temporal="@tieneTemporal.ToString().ToLower()">
                 <div class="card-body">
                     <h5 class="card-title mb-1"><strong>Marca:</strong> @(tieneRegistrado ? m.Vehicle.Brand : "N/D")</h5>
                     <p class="card-text mb-1"><strong>Placa:</strong> @(tieneRegistrado ? m.Vehicle.LicensePlate : "N/D")</p>
@@ -97,26 +98,28 @@
                     <p class="card-text mb-1">
                         <strong>Tipo:</strong>
                         <span class="badge @(m.EntryExit == "E" ? "bg-success" : "bg-danger")">
-                            @((m.EntryExit == "E") ? "Entrada" : "Salida")
+                            @(m.EntryExit == "E" ? "Entrada" : "Salida")
                         </span>
                     </p>
 
-                    <p class="card-text mb-1"><strong>Vehículos Temporales:</strong></p>
+                    <p class="card-text mb-1"><strong>Vehículo Temporal:</strong></p>
                     @if (m.TemporaryVehicle != null)
                     {
-                        <ul>
-                            <li>
-                                @m.TemporaryVehicle.LicensePlate <br />
-                                Entrada: @(m.TemporaryVehicle.EntryTime != null ? m.TemporaryVehicle.EntryTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")<br />
-                                Salida: @(m.TemporaryVehicle.ExitTime != null ? m.TemporaryVehicle.ExitTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")
-                            </li>
-                        </ul>
+                        <p class="mb-0"><strong>Placa:</strong> @m.TemporaryVehicle.LicensePlate</p>
+
+                        if (m.EntryExit == "E")
+                        {
+                            <p class="mb-0"><strong>Entrada:</strong> @(m.TemporaryVehicle.EntryTime != null ? m.TemporaryVehicle.EntryTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</p>
+                        }
+                        else if (m.EntryExit == "S")
+                        {
+                            <p class="mb-0"><strong>Salida:</strong> @(m.TemporaryVehicle.ExitTime != null ? m.TemporaryVehicle.ExitTime.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</p>
+                        }
                     }
                     else
                     {
-                        <p>Ninguno</p>
+                        <p class="mb-0">Ninguno</p>
                     }
-
 
                     <p class="card-text mb-0"><strong>Fecha:</strong> @m.Timestamp.ToString("dd/MM/yyyy HH:mm")</p>
                 </div>
@@ -125,45 +128,35 @@
     </div>
 </div>
 
+<!-- JS para filtros -->
 @section Scripts {
     <script>
-        // Función para filtrar filas por texto y tipo seleccionado
         function filtrarMovimientos(text) {
             text = text.toLowerCase();
             let filterTipo = document.getElementById("filtroTipoVehiculo").value;
 
-            // Filtrar tabla escritorio
             let rows = document.querySelectorAll("#movimientosTable tbody tr");
             rows.forEach(row => {
                 let textoFila = row.textContent.toLowerCase();
-
                 let mostrarPorTexto = textoFila.includes(text);
                 let mostrarPorTipo = filtrarPorTipoRow(row, filterTipo);
-
                 row.style.display = (mostrarPorTexto && mostrarPorTipo) ? "" : "none";
             });
 
-            // Filtrar tarjetas móvil
             let cards = document.querySelectorAll("#movimientosCards .movimiento-card");
             cards.forEach(card => {
                 let textoCard = card.textContent.toLowerCase();
                 let mostrarPorTexto = textoCard.includes(text);
                 let mostrarPorTipo = filtrarPorTipoRow(card, filterTipo);
-
                 card.style.display = (mostrarPorTexto && mostrarPorTipo) ? "" : "none";
             });
         }
 
-        // Función para filtrar solo por tipo de vehículo
         function filtrarPorTipo() {
-            let filterTipo = document.getElementById("filtroTipoVehiculo").value;
             let texto = document.getElementById("filtroInput").value.toLowerCase();
-
-            // Llamo a filtrarMovimientos con el texto actual y tipo nuevo
             filtrarMovimientos(texto);
         }
 
-        // Evalúa si un elemento debe mostrarse según filtro tipo
         function filtrarPorTipoRow(element, tipo) {
             const esRegistrado = element.getAttribute("data-registrado") === "true";
             const esTemporal = element.getAttribute("data-temporal") === "true";
@@ -171,7 +164,7 @@
             if (tipo === "todos") return true;
             if (tipo === "registrados") return esRegistrado;
             if (tipo === "temporales") return esTemporal;
-            return true; 
+            return true;
         }
     </script>
 }
