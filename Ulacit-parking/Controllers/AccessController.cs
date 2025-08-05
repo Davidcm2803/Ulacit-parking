@@ -41,6 +41,7 @@ namespace Ulacit_parking.Controllers
 
                 int ocupadosRegulares = db.Vehicles.Count(v =>
                     v.VehicleType == "Carro" &&
+                    v.UsesSpecialSpace == false &&
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
@@ -61,11 +62,13 @@ namespace Ulacit_parking.Controllers
             // Verifica capacidad disponible para vehículo registrado
             int ocupadosRegularesVeh = db.Vehicles.Count(v =>
                 v.VehicleType == "Carro" &&
+                v.UsesSpecialSpace == false &&
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
             int ocupadosMotos = db.Vehicles.Count(v =>
                 v.VehicleType == "Moto" &&
+                v.UsesSpecialSpace == false &&
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
@@ -115,6 +118,7 @@ namespace Ulacit_parking.Controllers
 
                     int ocupadosRegulares = db.Vehicles.Count(v =>
                         v.VehicleType == "Carro" &&
+                        v.UsesSpecialSpace == false &&
                         db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                         db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
@@ -161,11 +165,13 @@ namespace Ulacit_parking.Controllers
                 // Verificar capacidad para vehículos registrados
                 int ocupadosRegularesVeh = db.Vehicles.Count(v =>
                     v.VehicleType == "Carro" &&
+                    v.UsesSpecialSpace == false &&
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
                 int ocupadosMotos = db.Vehicles.Count(v =>
                     v.VehicleType == "Moto" &&
+                    v.UsesSpecialSpace == false &&
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                     db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
@@ -248,11 +254,13 @@ namespace Ulacit_parking.Controllers
 
             int ocupadosRegulares = db.Vehicles.Count(v =>
                 v.VehicleType == "Carro" &&
+                v.UsesSpecialSpace == false &&
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
             int ocupadosMotos = db.Vehicles.Count(v =>
                 v.VehicleType == "Moto" &&
+                v.UsesSpecialSpace == false &&
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
                 db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
 
