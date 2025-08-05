@@ -4,8 +4,7 @@
             ?? Session["UserLogged"] as Ulacit_parking.Models.User;
 
     var isGuard = user != null && user.RoleId == 2;
-    var random = new Random();
-    var parqueoAsignado = isGuard && Model.Any() ? Model[random.Next(Model.Count)].Name : null;
+
 }
 
 @{
@@ -67,10 +66,10 @@
     </div>
 </div>
 
-@if (isGuard && !string.IsNullOrEmpty(parqueoAsignado))
+@if (isGuard)
 {
     <script>
-        alert("¡Atención! Hoy debes cuidar el parqueo: @parqueoAsignado");
+        alert("Bienvenido Guarda, Selecciona el parqueo asigando antes de registar un ingreso");
     </script>
 }
 
