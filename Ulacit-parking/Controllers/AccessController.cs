@@ -97,22 +97,23 @@ namespace Ulacit_parking.Controllers
             if (string.IsNullOrEmpty(vehicleType))
                 return Json(new { success = false, message = "Debe especificar el tipo de vehículo." });
 
+
             bool tieneEspacio = false;
             if (usesSpecialSpace)
             {
-                tieneEspacio = EspaciosTemporales("Especial", parking.Id) < parking.SpecialCapacity;
+                tieneEspacio = (EspaciosTemporales("Especial", parking.Id)+EspaciosOcupados("Especial", parking.Id)) < parking.SpecialCapacity;
                 if (!tieneEspacio)
                     return Json(new { success = false, message = "Parqueo lleno para espacios especiales." });
             }
             else if (vehicleType == "Moto")
             {
-                tieneEspacio = EspaciosTemporales("Moto", parking.Id) < parking.MotorcycleCapacity;
+                tieneEspacio = (EspaciosTemporales("Moto", parking.Id) + EspaciosOcupados("Moto", parking.Id)) < parking.MotorcycleCapacity;
                 if (!tieneEspacio)
                     return Json(new { success = false, message = "Parqueo lleno para motocicletas." });
             }
             else
             {
-                tieneEspacio = EspaciosTemporales("Carro", parking.Id) < parking.RegularCapacity;
+                tieneEspacio = (EspaciosTemporales("Carro", parking.Id) + EspaciosOcupados("Carro", parking.Id)) < parking.RegularCapacity;
                 if (!tieneEspacio)
                     return Json(new { success = false, message = "Parqueo lleno para vehículos regulares." });
             }
