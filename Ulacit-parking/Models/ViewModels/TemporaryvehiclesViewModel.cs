@@ -10,18 +10,11 @@ namespace Ulacit_parking.Models.ViewModels
     {
         [Key]
         public int Id { get; set; }
-
         public string LicensePlate { get; set; }
-        public DateTime? EntryTime { get; set; }
-        public DateTime? ExitTime { get; set; }
+        public string VehicleType { get; set; }
+        public bool? UsesSpecialSpace { get; set; }
 
-        public int ParkingLotId { get; set; }
-        public virtual ParkingLot ParkingLot { get; set; }
 
-        public int MovementLogId { get; set; }
-
-        [ForeignKey("MovementLogId")]
-        public virtual MovementLogs MovementLog { get; set; }
     }
 }
 

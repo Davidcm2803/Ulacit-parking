@@ -10,9 +10,6 @@ namespace Ulacit_parking.Controllers
     {
         private readonly ParkingDatabaseContext db = new ParkingDatabaseContext();
 
-        // Lock para evitar race conditions al insertar temporales
-        private static readonly object _tempVehicleLock = new object();
-
         [HttpGet]
         public ActionResult Index()
         {
@@ -23,170 +20,58 @@ namespace Ulacit_parking.Controllers
         [HttpPost]
         public JsonResult VerificarIngresoSemaforo(string placa, int parkingLotId)
         {
-            var vehicle = db.Vehicles.FirstOrDefault(v => v.LicensePlate == placa);
-            var tempVehicle = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa && t.ExitTime == null);
             var parking = db.ParkingLots.Find(parkingLotId);
-
             if (parking == null)
                 return Json(new { success = false, color = "red", message = "Parqueo no encontrado." });
 
-            if (vehicle == null)
+            var vehicle = db.Vehicles.FirstOrDefault(v => v.LicensePlate == placa);
+            var tempVehicle = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa);
+
+            if (vehicle != null)
             {
-                if (tempVehicle != null)
-                    return Json(new { success = false, color = "red", message = "Vehículo temporal ya está dentro." });
+                bool estaDentro = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "E") >
+                                  db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "S");
 
-                // Checar capacidad sumando temporales y vehículos registrados
-                int ocupadosTemporales = db.TemporaryVehicles.Count(t =>
-                    t.ParkingLotId == parking.Id && t.EntryTime != null && t.ExitTime == null);
-
-                int ocupadosRegulares = db.Vehicles.Count(v =>
-                    v.VehicleType == "Carro" &&
-                    v.UsesSpecialSpace == false &&
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-                int ocupadosTotales = ocupadosRegulares + ocupadosTemporales;
-
-                if (ocupadosTotales >= parking.RegularCapacity)
-                    return Json(new { success = false, color = "red", message = "Parqueo lleno para vehículos temporales." });
-
-                return Json(new { success = true, color = "green", message = "Ingreso autorizado con pase único." });
-            }
-
-            // Vehículo registrado ya dentro
-            var entradasTotales = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "E");
-            var salidasTotales = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "S");
-            if (entradasTotales > salidasTotales)
-                return Json(new { success = false, color = "red", message = "Vehículo ya está dentro de un parqueo." });
-
-            // Verifica capacidad disponible para vehículo registrado
-            int ocupadosRegularesVeh = db.Vehicles.Count(v =>
-                v.VehicleType == "Carro" &&
-                v.UsesSpecialSpace == false &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            int ocupadosMotos = db.Vehicles.Count(v =>
-                v.VehicleType == "Moto" &&
-                v.UsesSpecialSpace == false &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            int ocupadosEspeciales = db.Vehicles.Count(v =>
-                v.UsesSpecialSpace == true &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            bool tieneEspacio =
-                (vehicle.VehicleType == "Carro" && ocupadosRegularesVeh < parking.RegularCapacity) ||
-                (vehicle.VehicleType == "Moto" && ocupadosMotos < parking.MotorcycleCapacity) ||
-                (vehicle.UsesSpecialSpace == true && ocupadosEspeciales < parking.SpecialCapacity);
-
-            if (!tieneEspacio)
-                return Json(new { success = false, color = "red", message = "Parqueo lleno para este tipo de vehículo." });
-
-            return Json(new { success = true, color = "green", message = "Ingreso autorizado." });
-        }
-
-        [HttpPost]
-        public JsonResult RegistrarIngreso(string placa, int parkingLotId)
-        {
-            lock (_tempVehicleLock)
-            {
-                var vehicle = db.Vehicles.FirstOrDefault(v => v.LicensePlate == placa);
-                var parking = db.ParkingLots.Find(parkingLotId);
-
-                if (parking == null)
-                    return Json(new { success = false, color = "red", message = "Parqueo no encontrado." });
-
-                if (vehicle == null)
-                {
-                    // Buscar temporal activo (sin salida)
-                    var tempActivo = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa && t.ExitTime == null);
-
-                    if (tempActivo != null)
-                        return Json(new { success = false, color = "red", message = "Este vehículo temporal ya está dentro." });
-
-                    // Buscar si ya uso pase único (temporal con salida != null en ese parqueo)
-                    var tempUsado = db.TemporaryVehicles.Any(t => t.LicensePlate == placa && t.ExitTime != null && t.ParkingLotId == parkingLotId);
-                    if (tempUsado)
-                        return Json(new { success = false, color = "orange", message = "Ya usó su pase único para este parqueo." });
-
-                    // Verificar capacidad sumando temporales + vehículos
-                    int ocupadosTemporales = db.TemporaryVehicles.Count(t =>
-                        t.ParkingLotId == parking.Id && t.EntryTime != null && t.ExitTime == null);
-
-                    int ocupadosRegulares = db.Vehicles.Count(v =>
-                        v.VehicleType == "Carro" &&
-                        v.UsesSpecialSpace == false &&
-                        db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                        db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-                    int ocupadosTotales = ocupadosRegulares + ocupadosTemporales;
-
-                    if (ocupadosTotales >= parking.RegularCapacity)
-                        return Json(new { success = false, color = "red", message = "Parqueo lleno para vehículos temporales." });
-
-                    try
-                    {
-                        var nuevoTemp = new TemporaryVehicle
-                        {
-                            LicensePlate = placa,
-                            EntryTime = DateTime.Now,
-                            ExitTime = null,
-                            ParkingLotId = parkingLotId
-                        };
-                        db.TemporaryVehicles.Add(nuevoTemp);
-                        db.SaveChanges();
-
-                        db.MovementLogs.Add(new MovementLogs
-                        {
-                            TemporaryVehicleId = nuevoTemp.Id,
-                            EntryExit = "E",
-                            Timestamp = DateTime.Now,
-                            ParkingLotId = parkingLotId
-                        });
-                        db.SaveChanges();
-
-                        return Json(new { success = true, color = "green", message = "Ingreso registrado con pase único." });
-                    }
-                    catch (System.Data.Entity.Infrastructure.DbUpdateException)
-                    {
-                        return Json(new { success = false, color = "red", message = "Error: Vehículo temporal ya está dentro." });
-                    }
-                }
-
-                // Vehículo registrado - validación y registro
-                var entradasTotales = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "E");
-                var salidasTotales = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "S");
-                if (entradasTotales > salidasTotales)
-                    return Json(new { success = false, color = "red", message = "Vehículo ya está dentro de un parqueo." });
-
-                // Verificar capacidad para vehículos registrados
-                int ocupadosRegularesVeh = db.Vehicles.Count(v =>
-                    v.VehicleType == "Carro" &&
-                    v.UsesSpecialSpace == false &&
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-                int ocupadosMotos = db.Vehicles.Count(v =>
-                    v.VehicleType == "Moto" &&
-                    v.UsesSpecialSpace == false &&
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-                int ocupadosEspeciales = db.Vehicles.Count(v =>
-                    v.UsesSpecialSpace == true &&
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
+                if (estaDentro)
+                    return Json(new { success = false, color = "red", message = "Vehículo ya está dentro." });
 
                 bool tieneEspacio =
-                    (vehicle.VehicleType == "Carro" && ocupadosRegularesVeh < parking.RegularCapacity) ||
-                    (vehicle.VehicleType == "Moto" && ocupadosMotos < parking.MotorcycleCapacity) ||
-                    (vehicle.UsesSpecialSpace == true && ocupadosEspeciales < parking.SpecialCapacity);
+                    (vehicle.VehicleType == "Carro" && EspaciosOcupados("Carro", parking.Id) < parking.RegularCapacity) ||
+                    (vehicle.VehicleType == "Moto" && EspaciosOcupados("Moto", parking.Id) < parking.MotorcycleCapacity) ||
+                    (vehicle.UsesSpecialSpace == true && EspaciosOcupados("Especial", parking.Id) < parking.SpecialCapacity);
 
                 if (!tieneEspacio)
                     return Json(new { success = false, color = "red", message = "Parqueo lleno para este tipo de vehículo." });
+
+                return Json(new { success = true, color = "green", message = "Ingreso autorizado." });
+            }
+
+            if (tempVehicle != null)
+            {
+                bool yaFueUsado = db.MovementLogs.Any(m => m.TemporaryVehicleId == tempVehicle.Id);
+
+                if (yaFueUsado)
+                    return Json(new { success = false, color = "red", message = "Este vehículo temporal ya fue usado. Debe registrarse como vehículo permanente." });
+            }
+
+            return Json(new { success = false, color = "yellow", message = "Vehículo no registrado", needsModal = true });
+        }
+
+        [HttpPost]
+        public JsonResult RegistrarIngreso(string placa, int parkingLotId, string vehicleType = null, bool usesSpecialSpace = false)
+        {
+            var parking = db.ParkingLots.Find(parkingLotId);
+            if (parking == null)
+                return Json(new { success = false, message = "Parqueo no encontrado." });
+
+            var vehicle = db.Vehicles.FirstOrDefault(v => v.LicensePlate == placa);
+
+            if (vehicle != null)
+            {
+                int entradas = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "E");
+                int salidas = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.EntryExit == "S");
+                if (entradas > salidas)
+                    return Json(new { success = false, message = "Vehículo ya está dentro de un parqueo." });
 
                 db.MovementLogs.Add(new MovementLogs
                 {
@@ -197,52 +82,105 @@ namespace Ulacit_parking.Controllers
                 });
                 db.SaveChanges();
 
-                return Json(new { success = true, color = "green", message = "Ingreso registrado correctamente." });
+                return Json(new { success = true, message = "Ingreso registrado correctamente." });
             }
+
+            var existingTempVehicle = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa);
+
+            if (existingTempVehicle != null)
+            {
+                bool yaFueUsado = db.MovementLogs.Any(m => m.TemporaryVehicleId == existingTempVehicle.Id);
+                if (yaFueUsado)
+                    return Json(new { success = false, message = "Este vehículo temporal ya fue usado. Debe registrarse como vehículo permanente." });
+            }
+
+            if (string.IsNullOrEmpty(vehicleType))
+                return Json(new { success = false, message = "Debe especificar el tipo de vehículo." });
+
+            bool tieneEspacio = false;
+            if (usesSpecialSpace)
+            {
+                tieneEspacio = EspaciosTemporales("Especial", parking.Id) < parking.SpecialCapacity;
+                if (!tieneEspacio)
+                    return Json(new { success = false, message = "Parqueo lleno para espacios especiales." });
+            }
+            else if (vehicleType == "Moto")
+            {
+                tieneEspacio = EspaciosTemporales("Moto", parking.Id) < parking.MotorcycleCapacity;
+                if (!tieneEspacio)
+                    return Json(new { success = false, message = "Parqueo lleno para motocicletas." });
+            }
+            else
+            {
+                tieneEspacio = EspaciosTemporales("Carro", parking.Id) < parking.RegularCapacity;
+                if (!tieneEspacio)
+                    return Json(new { success = false, message = "Parqueo lleno para vehículos regulares." });
+            }
+
+            TemporaryVehicle tempVehicle;
+            if (existingTempVehicle == null)
+            {
+                tempVehicle = new TemporaryVehicle
+                {
+                    LicensePlate = placa,
+                    VehicleType = vehicleType,
+                    UsesSpecialSpace = usesSpecialSpace
+                };
+                db.TemporaryVehicles.Add(tempVehicle);
+                db.SaveChanges();
+            }
+            else
+            {
+                tempVehicle = existingTempVehicle;
+                tempVehicle.VehicleType = vehicleType;
+                tempVehicle.UsesSpecialSpace = usesSpecialSpace;
+                db.SaveChanges();
+            }
+
+            db.MovementLogs.Add(new MovementLogs
+            {
+                TemporaryVehicleId = tempVehicle.Id,
+                EntryExit = "E",
+                Timestamp = DateTime.Now,
+                ParkingLotId = parking.Id
+            });
+            db.SaveChanges();
+
+            return Json(new { success = true, message = "Ingreso registrado como temporal (uso único)." });
         }
 
         [HttpPost]
         public JsonResult RegistrarSalida(string placa, int parkingLotId)
         {
             var vehicle = db.Vehicles.FirstOrDefault(v => v.LicensePlate == placa);
-            var tempVehicle = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa && t.ExitTime == null);
+            var tempVehicle = db.TemporaryVehicles.FirstOrDefault(t => t.LicensePlate == placa);
 
-            if (vehicle == null)
+            if (vehicle != null)
             {
-                if (tempVehicle == null)
-                    return Json(new { success = false, message = "Este vehículo no tiene registro de entrada." });
-
-                tempVehicle.ExitTime = DateTime.Now;
+                db.MovementLogs.Add(new MovementLogs
+                {
+                    VehicleId = vehicle.Id,
+                    EntryExit = "S",
+                    Timestamp = DateTime.Now,
+                    ParkingLotId = parkingLotId
+                });
                 db.SaveChanges();
-
+                return Json(new { success = true, message = "Salida registrada correctamente." });
+            }
+            else if (tempVehicle != null)
+            {
                 db.MovementLogs.Add(new MovementLogs
                 {
                     TemporaryVehicleId = tempVehicle.Id,
                     EntryExit = "S",
                     Timestamp = DateTime.Now,
-                    ParkingLotId = tempVehicle.ParkingLotId
+                    ParkingLotId = parkingLotId
                 });
                 db.SaveChanges();
-
-                return Json(new { success = true, message = "Salida registrada del vehículo temporal." });
+                return Json(new { success = true, message = "Salida registrada de temporal." });
             }
 
-            var entradas = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "E");
-            var salidas = db.MovementLogs.Count(m => m.VehicleId == vehicle.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "S");
-
-            if (entradas <= salidas)
-                return Json(new { success = false, message = "Este vehículo no está dentro de este parqueo." });
-
-            db.MovementLogs.Add(new MovementLogs
-            {
-                VehicleId = vehicle.Id,
-                EntryExit = "S",
-                Timestamp = DateTime.Now,
-                ParkingLotId = parkingLotId
-            });
-            db.SaveChanges();
-
-            return Json(new { success = true, message = "Salida registrada correctamente." });
+            return Json(new { success = false, message = "No se encontró vehículo con esa placa." });
         }
 
         [HttpPost]
@@ -252,34 +190,38 @@ namespace Ulacit_parking.Controllers
             if (parking == null)
                 return Json(new { success = false });
 
-            int ocupadosRegulares = db.Vehicles.Count(v =>
-                v.VehicleType == "Carro" &&
-                v.UsesSpecialSpace == false &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            int ocupadosMotos = db.Vehicles.Count(v =>
-                v.VehicleType == "Moto" &&
-                v.UsesSpecialSpace == false &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            int ocupadosEspeciales = db.Vehicles.Count(v =>
-                v.UsesSpecialSpace == true &&
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "E") >
-                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parking.Id && m.EntryExit == "S"));
-
-            int ocupadosTemporales = db.TemporaryVehicles.Count(t =>
-                t.ParkingLotId == parking.Id && t.EntryTime != null && t.ExitTime == null);
+            int carrosRegularesOcupados = EspaciosOcupados("Carro", parking.Id) + EspaciosTemporales("Carro", parking.Id);
+            int motosOcupadas = EspaciosOcupados("Moto", parking.Id) + EspaciosTemporales("Moto", parking.Id);
+            int especialesOcupados = EspaciosOcupados("Especial", parking.Id) + EspaciosTemporales("Especial", parking.Id);
 
             return Json(new
             {
                 success = true,
-                regular = $"{ocupadosRegulares + ocupadosTemporales}/{parking.RegularCapacity}",
-                moto = $"{ocupadosMotos}/{parking.MotorcycleCapacity}",
-                especial = $"{ocupadosEspeciales}/{parking.SpecialCapacity}",
-                temporales = ocupadosTemporales
+                regular = $"{carrosRegularesOcupados}/{parking.RegularCapacity}",
+                moto = $"{motosOcupadas}/{parking.MotorcycleCapacity}",
+                especial = $"{especialesOcupados}/{parking.SpecialCapacity}",
+                temporales = EspaciosTemporales("Carro", parking.Id) + EspaciosTemporales("Moto", parking.Id) + EspaciosTemporales("Especial", parking.Id)
             });
+        }
+
+        private int EspaciosOcupados(string tipo, int parkingLotId)
+        {
+            return db.Vehicles.Count(v =>
+                ((tipo == "Especial" && v.UsesSpecialSpace == true) ||
+                 (tipo == "Carro" && v.VehicleType == "Carro" && v.UsesSpecialSpace != true) ||
+                 (tipo == "Moto" && v.VehicleType == "Moto" && v.UsesSpecialSpace != true)) &&
+                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "E") >
+                db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "S"));
+        }
+
+        private int EspaciosTemporales(string tipo, int parkingLotId)
+        {
+            return db.TemporaryVehicles.Count(t =>
+                ((tipo == "Especial" && t.UsesSpecialSpace == true) ||
+                 (tipo == "Carro" && t.VehicleType == "Carro" && t.UsesSpecialSpace != true) ||
+                 (tipo == "Moto" && t.VehicleType == "Moto" && t.UsesSpecialSpace != true)) &&
+                db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "E") >
+                db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == parkingLotId && m.EntryExit == "S"));
         }
     }
 }

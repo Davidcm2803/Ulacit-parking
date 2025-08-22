@@ -21,7 +21,7 @@ public class AuthorizeRoleAttribute : AuthorizeAttribute
         if (user == null)
             return false;
 
-        System.Diagnostics.Debug.WriteLine("Rol del usuario: " + user.RoleId);
+        System.Diagnostics.Debug.WriteLine("Rol del usuario: " + user.Name);
 
         return Array.Exists(allowedRoles, r => r == user.RoleId);
     }
@@ -29,6 +29,9 @@ public class AuthorizeRoleAttribute : AuthorizeAttribute
 
     protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
     {
+        System.Diagnostics.Debug.WriteLine("Acceso no autorizado. Redirigiendo a /Admin/Login");
         filterContext.Result = new RedirectResult("/Admin/Login"); 
+
+
     }
 }

@@ -4,7 +4,6 @@
             ?? Session["UserLogged"] as Ulacit_parking.Models.User;
 
     var isGuard = user != null && user.RoleId == 2;
-
 }
 
 @{
@@ -41,10 +40,10 @@
                         <button onclick="registrarSalida()" class="btn btn-warning w-45">Registrar Salida</button>
                     </div>
 
-                    <!-- Contenedor de mensajes de validación o éxito -->
+                    <!-- Contenedor de mensajes -->
                     <div class="alert text-center fw-bold" id="mensaje" style="display: none;"></div>
 
-                    <!-- Sección visual del semáforo de ingreso -->
+                    <!-- Semáforo visual de ingreso -->
                     <div class="text-center my-4">
                         <h4 class="mb-3">Semáforo de Ingreso</h4>
                         <div id="semaforo" style="width: 100px; height: 100px; margin: auto; border-radius: 50%; background-color: gray;"></div>
@@ -53,7 +52,7 @@
 
                     <hr />
 
-                    <!-- Sección para mostrar el estado actual del parqueo -->
+                    <!-- Estado actual del parqueo -->
                     <div class="text-center">
                         <h4>Estado actual del parqueo</h4>
                         <p id="estadoRegular" class="mb-1">Vehículos: </p>
@@ -69,20 +68,20 @@
 @if (isGuard)
 {
     <script>
-        alert("Bienvenido Guarda, Selecciona el parqueo asigando antes de registar un ingreso");
+        // Mensaje inicial si es guardia
+        alert("Bienvenido Guarda, Selecciona el parqueo asignado antes de registrar un ingreso");
     </script>
 }
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Obtener el ID del parqueo seleccionado
         function getSelectedParkingLot() {
             return $('#parkingLotSelect').val();
         }
 
-        // Verifica si la placa puede ingresar, y actualiza el semáforo
         function actualizarSemaforo() {
             const placa = $('#placa').val().trim();
             const parkingLotId = getSelectedParkingLot();
@@ -93,59 +92,19 @@
                 return;
             }
 
-            // Llama al controlador para validar ingreso
+            // Verifica si el vehículo puede ingresar
             $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
-                $('#semaforo').css('background-color', data.success ? 'green' : 'red');
-                $('#mensajeSemaforo').text(data.message);
-            });
-        }
-
-        // Acción para registrar ingreso
-        function registrarIngreso() {
-            const placa = $('#placa').val().trim();
-            const parkingLotId = getSelectedParkingLot();
-
-            if (!placa) {
-                alert('Ingrese una placa.');
-                return;
-            }
-
-            // Primero verifica si puede ingresar (espacio, ya está dentro, etc)
-            $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
-                if (!data.success) {
-                    $('#mensaje').html(`<span>${data.message}</span>`).removeClass().addClass('alert alert-danger').show();
-                    $('#semaforo').css('background-color', 'red');
+                if (data.needsModal) {
+                    $('#semaforo').css('background-color', 'yellow');
+                    $('#mensajeSemaforo').text('Vehículo no registrado - requiere datos');
+                } else {
+                    $('#semaforo').css('background-color', data.success ? 'green' : 'red');
                     $('#mensajeSemaforo').text(data.message);
-                    return;
                 }
-
-                // Si se autoriza, procede con el ingreso
-                $.post('/Access/RegistrarIngreso', { placa, parkingLotId }, function (resp) {
-                    $('#mensaje').html(`<span>${resp.message}</span>`).removeClass().addClass('alert alert-success').show();
-                    actualizarEstado();
-                    actualizarSemaforo();
-                });
             });
         }
 
-        // Acción para registrar salida
-        function registrarSalida() {
-            const placa = $('#placa').val().trim();
-            const parkingLotId = getSelectedParkingLot();
-
-            if (!placa) {
-                alert('Ingrese una placa.');
-                return;
-            }
-
-            $.post('/Access/RegistrarSalida', { placa, parkingLotId }, function (data) {
-                $('#mensaje').html(`<span>${data.message}</span>`).removeClass().addClass('alert alert-primary').show();
-                actualizarEstado();
-                actualizarSemaforo();
-            });
-        }
-
-        // Actualiza los contadores de ocupación del parqueo
+        // Actualiza el estado de ocupación del parqueo
         function actualizarEstado() {
             const parkingLotId = getSelectedParkingLot();
 
@@ -158,14 +117,136 @@
             });
         }
 
-        // Eventos automáticos
-        $('#placa').on('input', actualizarSemaforo); // Semáforo en vivo al escribir
+
+        // Registrar ingreso
+        function registrarIngreso() {
+            const placa = $('#placa').val().trim();
+            const parkingLotId = getSelectedParkingLot();
+
+            if (!placa) {
+                alert('Ingrese una placa.');
+                return;
+            }
+
+            // Primero verifica si puede ingresar
+            $.post('/Access/VerificarIngresoSemaforo', { placa, parkingLotId }, function (data) {
+                if (data.needsModal) {
+                    // Mostrar modal para vehículo no registrado
+                    mostrarModalTemporalTEST(placa, parkingLotId);
+                } else if (data.success) {
+                    // Vehículo registrado normal - proceder directamente
+                    $.post('/Access/RegistrarIngreso', { placa, parkingLotId }, function (resp) {
+                        mostrarMensaje(resp.message, resp.success ? 'success' : 'danger');
+                        actualizarEstado();
+                        actualizarSemaforo();
+                    });
+                    // Error - mostrar mensaje
+                    mostrarMensaje(data.message, 'danger');
+                    $('#semaforo').css('background-color', 'red');
+                    $('#mensajeSemaforo').text(data.message);
+                }
+            });
+        }
+
+        // Modal para vehículos temporales mejorado
+        function mostrarModalTemporalTEST(placa, parkingLotId) {
+            Swal.fire({
+                title: 'Vehículo No Registrado',
+                html: `
+                        <p style="margin-bottom: 15px;">La placa <strong>${placa}</strong> no está registrada en el sistema.</p>
+                        <p style="margin-bottom: 20px; color: #d9534f;">⚠️ <strong>Nota:</strong> Los vehículos temporales solo pueden usarse UNA VEZ.</p>
+
+                        <div style="text-align: left;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Tipo de vehículo:</label>
+                            <select id="tempTipo" class="swal2-input" style="margin-bottom: 15px;">
+                                <option value="">Seleccione tipo</option>
+                                <option value="Carro">Carro</option>
+                                <option value="Moto">Moto</option>
+                            </select>
+
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" id="tempLey7600" style="margin-right: 5px;">
+                                <strong>Aplica Ley 7600 (Espacio especial)</strong>
+                            </label>
+
+                            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                <small style="color: #6c757d;">
+                                    <strong>Recordatorio:</strong> Si este vehículo visitará regularmente,
+                                    considere registrarlo como vehículo permanente.
+                                </small>
+                            </div>
+                        </div>
+                    `,
+                width: '500px',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: "Registrar Acceso Temporal",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                preConfirm: () => {
+                    const tipo = $('#tempTipo').val();
+                    const ley7600 = $('#tempLey7600').is(':checked');
+
+                    if (!tipo) {
+                        Swal.showValidationMessage('Debe seleccionar el tipo de vehículo');
+                        return false;
+                    }
+                    return { tipo, ley7600 };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Access/RegistrarIngreso', {
+                        placa: placa,
+                        parkingLotId: parkingLotId,
+                        vehicleType: result.value.tipo,
+                        usesSpecialSpace: result.value.ley7600
+                    }, function (resp) {
+                        mostrarMensaje(resp.message, resp.success ? 'success' : 'danger');
+                        actualizarEstado();
+                        actualizarSemaforo();
+                    });
+                }
+            });
+        }
+
+        // Función para mostrar mensajes
+        function mostrarMensaje(mensaje, tipo) {
+            $('#mensaje').html(`<span>${mensaje}</span>`)
+                .removeClass()
+                .addClass(`alert alert-${tipo}`)
+                .show();
+
+            // Ocultar mensaje después de 5 segundos
+            setTimeout(() => {
+                $('#mensaje').fadeOut();
+            }, 5000);
+        }
+
+        // Registrar salida
+        function registrarSalida() {
+            const placa = $('#placa').val().trim();
+            const parkingLotId = getSelectedParkingLot();
+
+            if (!placa) {
+                alert('Ingrese una placa.');
+                return;
+            }
+
+            $.post('/Access/RegistrarSalida', { placa, parkingLotId }, function (data) {
+                mostrarMensaje(data.message, data.success ? 'primary' : 'danger');
+                actualizarEstado();
+                actualizarSemaforo();
+            });
+        }
+
+        $('#placa').on('input', actualizarSemaforo);
         $('#parkingLotSelect').change(function () {
-            actualizarEstado();     // Cambiar parqueo > cambia estado
-            actualizarSemaforo();   // y cambia semáforo
+            actualizarEstado();
+            actualizarSemaforo();
         });
 
-        // Inicializa valores al cargar la página
+        // Inicializar al cargar la página
         $(document).ready(function () {
             actualizarEstado();
             actualizarSemaforo();

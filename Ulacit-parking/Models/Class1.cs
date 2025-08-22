@@ -9,7 +9,6 @@ namespace Ulacit_parking.Models
     public class ParkingDatabaseContext : DbContext
     {
         public ParkingDatabaseContext() : base("name=ParkingDatabaseContext") { }
-
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
@@ -17,7 +16,6 @@ namespace Ulacit_parking.Models
         public DbSet<ParkingAssignment> ParkingAssignments { get; set; }
         public DbSet<MovementLogs> MovementLogs { get; set; }
         public DbSet<TemporaryVehicle> TemporaryVehicles { get; set; }
-
     }
 
     public class User
@@ -30,7 +28,6 @@ namespace Ulacit_parking.Models
         public int RoleId { get; set; }
         public string Password { get; set; }
         public string FirstLogin { get; set; }
-
         public virtual Role Role { get; set; }
         public virtual ICollection<Vehicle> Vehicles { get; set; }
         public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
@@ -40,7 +37,6 @@ namespace Ulacit_parking.Models
     {
         public int Id { get; set; }
         public string RoleName { get; set; }
-
         public virtual ICollection<User> Users { get; set; }
     }
 
@@ -64,10 +60,8 @@ namespace Ulacit_parking.Models
         public int RegularCapacity { get; set; }
         public int MotorcycleCapacity { get; set; }
         public int SpecialCapacity { get; set; }
-
         public virtual ICollection<ParkingAssignment> ParkingAssignments { get; set; }
         public virtual ICollection<MovementLogs> MovementLogs { get; set; }
-        public virtual ICollection<TemporaryVehicle> TemporaryVehicles { get; set; } 
     }
 
     public class ParkingAssignment
@@ -76,7 +70,6 @@ namespace Ulacit_parking.Models
         public int UserId { get; set; }
         public int ParkingLotId { get; set; }
         public DateTime AssignmentDate { get; set; }
-
         public virtual User User { get; set; }
         public virtual ParkingLot ParkingLot { get; set; }
     }
@@ -85,12 +78,10 @@ namespace Ulacit_parking.Models
     {
         public int Id { get; set; }
         public int? VehicleId { get; set; }
-        public int? TemporaryVehicleId { get; set; } 
-
+        public int? TemporaryVehicleId { get; set; }
         public string EntryExit { get; set; }
         public DateTime Timestamp { get; set; }
         public int? ParkingLotId { get; set; }
-
         public virtual Vehicle Vehicle { get; set; }
         public virtual TemporaryVehicle TemporaryVehicle { get; set; }
         public virtual ParkingLot ParkingLot { get; set; }
@@ -100,12 +91,8 @@ namespace Ulacit_parking.Models
     {
         public int Id { get; set; }
         public string LicensePlate { get; set; }
-        public DateTime? EntryTime { get; set; }
-        public DateTime? ExitTime { get; set; }
-
-        public int ParkingLotId { get; set; }
-        public virtual ParkingLot ParkingLot { get; set; }
-
-        public virtual ICollection<MovementLogs> MovementLogs { get; set; } 
+        public string VehicleType { get; set; }
+        public bool? UsesSpecialSpace { get; set; }
+        public virtual ICollection<MovementLogs> MovementLogs { get; set; }
     }
 }
