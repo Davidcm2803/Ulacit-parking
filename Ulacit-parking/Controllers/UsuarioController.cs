@@ -46,5 +46,15 @@ namespace Ulacit_parking.Controllers
             ViewBag.VehicleId = id;
             return View(historial);
         }
+
+        [HttpGet]
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            Session.Abandon();
+
+            TempData["SuccessMessage"] = "Sesión cerrada correctamente.";
+            return RedirectToAction("Login", "Admin");
+        }
     }
 }

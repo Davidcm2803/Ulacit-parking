@@ -85,6 +85,12 @@
     </div>
 </div>
 <script>
+        @if (TempData["Message"] != null)
+    {
+        <text>
+            alert("@TempData["Message"]");
+        </text>
+    }
     function filtrarEstacionamientos(valor) {
         valor = valor.toLowerCase();
         const rows = document.querySelectorAll("#estacionamientosTable tbody tr");

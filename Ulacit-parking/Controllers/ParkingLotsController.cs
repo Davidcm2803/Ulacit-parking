@@ -64,7 +64,7 @@ namespace Ulacit_parking.Controllers
                 ModelState.AddModelError("SpecialCapacity", "La capacidad especial no puede ser negativa.");
             }
 
-            if((model.RegularCapacity + model.MotorcycleCapacity + model.SpecialCapacity) <= 0)
+            if ((model.RegularCapacity + model.MotorcycleCapacity + model.SpecialCapacity) <= 0)
             {
                 ModelState.AddModelError("RegularCapacity", "Al menos una de las capacidades debe ser 1 o mas.");
             }
@@ -120,7 +120,7 @@ namespace Ulacit_parking.Controllers
                     return Json(new { success = false, message = "Las capacidades no pueden ser negativas." });
 
                 if ((regularCapacity + motorcycleCapacity + specialCapacity) <= 0)
-                    return Json(new { success = false, message = "Al menos una de las capacidades debe ser 1 o mas." });
+                    return Json(new { success = false, message = "Al menos una de las capacidades debe ser 1 o más." });
 
                 bool nombreDuplicado = db.ParkingLots
                     .Any(p => p.Id != id && p.Name.ToLower().Trim() == name.ToLower().Trim());
@@ -131,6 +131,18 @@ namespace Ulacit_parking.Controllers
                 var parkingLot = db.ParkingLots.Find(id);
                 if (parkingLot == null)
                     return Json(new { success = false, message = "Estacionamiento no encontrado." });
+
+                bool tieneVehiculos = db.Vehicles.Any(v =>
+                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == id && m.EntryExit == "E") >
+                    db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == id && m.EntryExit == "S")
+                ) ||
+                db.TemporaryVehicles.Any(t =>
+                    db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == id && m.EntryExit == "E") >
+                    db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == id && m.EntryExit == "S")
+                );
+
+                if (tieneVehiculos)
+                    return Json(new { success = false, message = "No se puede editar. Hay vehículos dentro del parqueo." });
 
                 parkingLot.Name = name.Trim();
                 parkingLot.RegularCapacity = regularCapacity;
@@ -146,6 +158,8 @@ namespace Ulacit_parking.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+
+
 
 
 
@@ -167,20 +181,26 @@ namespace Ulacit_parking.Controllers
             if (parkingLot == null)
                 return HttpNotFound();
 
+            bool tieneVehiculos = db.Vehicles.Any(v =>
+        db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == id && m.EntryExit == "E") >
+        db.MovementLogs.Count(m => m.VehicleId == v.Id && m.ParkingLotId == id && m.EntryExit == "S")
+    ) ||
+    db.TemporaryVehicles.Any(t =>
+        db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == id && m.EntryExit == "E") >
+        db.MovementLogs.Count(m => m.TemporaryVehicleId == t.Id && m.ParkingLotId == id && m.EntryExit == "S")
+    );
+
+            if (tieneVehiculos)
+            {
+                TempData["Message"] = "No se puede eliminar. Hay vehículos dentro del parqueo.";
+                return RedirectToAction("Index");
+            }
+
             db.ParkingLots.Remove(parkingLot);
             db.SaveChanges();
 
             TempData["Message"] = "Estacionamiento eliminado correctamente.";
             return RedirectToAction("Index");
-        }
-
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-                db.Dispose();
-
-            base.Dispose(disposing);
         }
     }
 }
