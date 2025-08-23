@@ -6,9 +6,10 @@
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="navbar-links d-flex align-items-right" style="position:relative; right:-1700px">
+<nav class="navbar navbar-expand-lg" style="background-color:#3B2C58;">
+    <div class="container-fluid d-flex justify-content-end">
         @{
             var usuario = Session["AdminLogged"] as Ulacit_parking.Models.User
                        ?? Session["UserLogged"] as Ulacit_parking.Models.User;
@@ -16,12 +17,13 @@
 
         @if (usuario != null)
         {
-            <div class="dropdown me-3">
-                <button class="btn btn-outline-black dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle d-flex align-items-center"
+                        type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="me-2">@usuario.Name</span>
                     <i class="fas fa-user-circle"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
                     <li><a class="dropdown-item" href="@Url.Action("CambiarPassword", "Admin")"><i class="fas fa-lock me-2"></i>Cambiar contraseña</a></li>
                     <li><hr class="dropdown-divider" /></li>
